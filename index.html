@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PlengerGram</title>
+    <title>PlengerGram - Premium Realtime</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Font Awesome untuk Icon -->
@@ -79,23 +79,47 @@
             }
         }
 
-        // --- PENGHAPUSAN DAN PENYEGARAN DATA TOTAL (CLEAN WIPE) ---
-        const HAS_RESET = 'plengergram_force_wipe_all_data_v110_realtime_groups';
+        // --- PENGHAPUSAN DAN PENYEGARAN DATA TOTAL (CLEAN WIPE V120) ---
+        const HAS_RESET = 'plengergram_force_wipe_all_data_v120_preconfigured';
         if (!localStorage.getItem(HAS_RESET)) {
             localStorage.clear();
             localStorage.setItem(HAS_RESET, 'true');
         }
 
+        // --- AKUN RESMI DEFAULT (DEVELOPER & KII) ---
+        const DEFAULT_ACCOUNTS = [
+            {
+                id: 'user_developer',
+                username: 'developer',
+                password: 'developer',
+                fullName: 'Developer Plenger',
+                avatar: 'https://api.dicebear.com/7.x/adventurer/svg?seed=developer',
+                bio: 'Akun Pengembang Utama PlengerGram.',
+                followingIds: [],
+                isBot: false,
+                lastActive: Date.now()
+            },
+            {
+                id: 'user_kii',
+                username: 'kii_',
+                password: 'kii',
+                fullName: 'Kii',
+                avatar: 'https://api.dicebear.com/7.x/adventurer/svg?seed=kii',
+                bio: 'Halo! Saya Kii.',
+                followingIds: [],
+                isBot: false,
+                lastActive: Date.now()
+            }
+        ];
+
         // --- STATE MANAGEMENT ---
-        let accounts = [];
+        let accounts = [...DEFAULT_ACCOUNTS];
         let memories = [];
         let chats = {};
         
         let currentUserId = ""; 
         let activePage = 'home'; // 'home', 'messages', 'profile'
         let currentChatWithId = 'group_public'; // Default langsung ke grup publik bersama
-        let authMode = 'signup'; 
-        let isUserLoggedIn = false;
 
         // Filter pencarian pengguna terdaftar
         let userSearchQuery = "";
@@ -151,23 +175,45 @@
             }
         }
 
+        // Memastikan akun developer & kii_ ada di Firestore cloud agar bisa diakses real-time oleh semua perangkat
+        async function ensureDefaultAccountsInCloud() {
+            if (!useCloud) return;
+            try {
+                for (const defAcc of DEFAULT_ACCOUNTS) {
+                    const docRef = getPublicDataDocRef('accounts', defAcc.id);
+                    const docSnap = await getDoc(docRef);
+                    if (!docSnap.exists()) {
+                        await setDoc(docRef, defAcc);
+                    }
+                }
+            } catch (err) {
+                console.error("Gagal melakukan registrasi akun default ke Cloud:", err);
+            }
+        }
+
         function setupDataSync(user) {
             if (!user || !useCloud) return;
 
-            // 1. Sync Akun Pengguna (Tanpa Bot)
+            // 1. Sync Akun Pengguna
             onSnapshot(getPublicDataColRef('accounts'), (snapshot) => {
-                accounts = [];
+                const fetchedAccounts = [];
                 snapshot.forEach(doc => {
                     const data = doc.data();
                     if (data && data.id) {
-                        accounts.push(data);
+                        fetchedAccounts.push(data);
                     }
                 });
+                
+                // Jika data cloud masih kosong/belum siap, pertahankan default lokal
+                if (fetchedAccounts.length > 0) {
+                    accounts = fetchedAccounts;
+                } else {
+                    accounts = [...DEFAULT_ACCOUNTS];
+                }
                 
                 const loggedInId = localStorage.getItem('pg_logged_in_id');
                 if (loggedInId && accounts.some(acc => acc.id === loggedInId)) {
                     currentUserId = loggedInId;
-                    isUserLoggedIn = true;
                     startTrackingActivity();
                 }
                 renderApp();
@@ -195,6 +241,7 @@
                     }
                 });
                 renderApp();
+                scrollToBottom();
             }, (err) => console.error("Error syncing chats:", err));
         }
 
@@ -225,7 +272,7 @@
         function startTrackingActivity() {
             if (activityIntervalId) clearInterval(activityIntervalId);
             updateMyActivityTimestamp();
-            activityIntervalId = setInterval(updateMyActivityTimestamp, 45000); // Perbarui setiap 45 detik
+            activityIntervalId = setInterval(updateMyActivityTimestamp, 30000); // Perbarui setiap 30 detik
         }
 
         function stopTrackingActivity() {
@@ -235,11 +282,11 @@
             }
         }
 
-        // Fungsi mengecek apakah teman sedang online (aktif dalam 2 menit terakhir)
+        // Fungsi mengecek apakah teman sedang online (aktif dalam 1 menit terakhir)
         window.isUserOnline = function(user) {
             if (!user || !user.lastActive) return false;
             const difference = Date.now() - user.lastActive;
-            return difference < 120000; // 120,000 ms = 2 menit
+            return difference < 60000; // 60 detik
         }
 
         // --- SISTEM NAVIGASI ---
@@ -249,7 +296,6 @@
                 if (targetId) {
                     currentChatWithId = targetId;
                 } else {
-                    // Selalu default ke obrolan grup bersama jika tidak ada target spesifik
                     currentChatWithId = 'group_public';
                 }
                 scrollToBottom();
@@ -348,90 +394,29 @@
         }
 
         // --- MANAJEMEN AUTENTIKASI ---
-
         window.handleLogin = function(e) {
             e.preventDefault();
             const usernameInput = document.getElementById('login-username').value.trim().toLowerCase();
             const passwordInput = document.getElementById('login-password').value;
 
+            // Autentikasi berdasarkan kredensial developer dan kii_
             const user = accounts.find(acc => acc.username === usernameInput && acc.password === passwordInput);
             if (user) {
                 currentUserId = user.id;
-                isUserLoggedIn = true;
                 localStorage.setItem('pg_logged_in_id', user.id);
                 showCustomToast(`Selamat datang kembali, @${user.username}!`);
                 startTrackingActivity();
                 navigateTo('home');
             } else {
-                showCustomModal("Gagal Masuk", "Username atau password salah. Silakan coba lagi atau daftar akun baru.");
-            }
-        }
-
-        window.handleSignUp = async function(e) {
-            e.preventDefault();
-            const username = document.getElementById('signup-username').value.trim().toLowerCase();
-            const fullName = document.getElementById('signup-fullname').value.trim();
-            const password = document.getElementById('signup-password').value;
-            const bio = document.getElementById('signup-bio').value.trim() || "Halo! Saya pengguna baru di PlengerGram.";
-
-            if (!username || !fullName || !password) {
-                showCustomToast("Semua kolom bertanda bintang (*) wajib diisi!");
-                return;
-            }
-
-            if (accounts.some(acc => acc.username === username)) {
-                showCustomModal("Gagal Mendaftar", "Nama pengguna ini sudah digunakan.");
-                return;
-            }
-
-            const newId = 'user_' + Date.now();
-            const randomSeed = Math.floor(Math.random() * 1000);
-            const avatarUrl = `https://api.dicebear.com/7.x/adventurer/svg?seed=${randomSeed}`;
-
-            const newAccount = {
-                id: newId,
-                username: username,
-                fullName: fullName,
-                password: password,
-                avatar: avatarUrl,
-                bio: bio,
-                followingIds: [],
-                isBot: false,
-                lastActive: Date.now()
-            };
-
-            try {
-                if (useCloud) {
-                    await setDoc(getPublicDataDocRef('accounts', newId), newAccount);
-                } else {
-                    accounts.push(newAccount);
-                    saveLocalData();
-                }
-                currentUserId = newId;
-                isUserLoggedIn = true;
-                localStorage.setItem('pg_logged_in_id', newId);
-
-                showCustomToast("Pendaftaran berhasil! Selamat datang di PlengerGram.");
-                startTrackingActivity();
-                navigateTo('home');
-            } catch (err) {
-                console.error("Gagal menyimpan akun baru:", err);
-                showCustomToast("Terjadi kesalahan sistem pendaftaran cloud.");
+                showCustomModal("Gagal Masuk", "Username atau password salah. Pastikan Anda masuk menggunakan akun resmi (developer / kii_).");
             }
         }
 
         window.handleLogout = function() {
             stopTrackingActivity();
-            isUserLoggedIn = false;
             currentUserId = "";
             localStorage.removeItem('pg_logged_in_id');
             showCustomToast("Anda telah keluar akun.");
-            authMode = 'signup'; 
-            renderApp();
-        }
-
-        window.toggleAuthMode = function() {
-            authMode = authMode === 'login' ? 'signup' : 'login';
             renderApp();
         }
 
@@ -457,7 +442,6 @@
         }
 
         // --- RENDERING STRUKTUR NAVIGASI ---
-
         function renderNavigation() {
             const currentUser = getCurrentUser();
             if (!currentUser) return { desktopNav: "", mobileNav: "" };
@@ -534,9 +518,7 @@
             return { desktopNav, mobileNav };
         }
 
-
         // --- BAR PINTASAN TIMELINE (SHORTCUT DOCK BAR) UNTUK TIMELINE BERSAMA ---
-
         function renderShortcutBar() {
             if (!isShortcutBarOpen) return "";
 
@@ -544,6 +526,39 @@
                 m.title.toLowerCase().includes(shortcutSearchQuery.toLowerCase()) || 
                 m.description.toLowerCase().includes(shortcutSearchQuery.toLowerCase())
             ).sort((a,b) => new Date(b.date) - new Date(a.date));
+
+            // Membuat HTML list kenangan tanpa nested backticks agar menghindari SyntaxError
+            let shortcutMemoriesHtml = "";
+            if (filteredMemories.length > 0) {
+                shortcutMemoriesHtml = filteredMemories.map(m => {
+                    const creator = accounts.find(a => a.id === m.userId) || { username: "anggota", avatar: "https://api.dicebear.com/7.x/adventurer/svg?seed=anon" };
+                    const shareBtn = (activePage === 'messages' && currentChatWithId)
+                        ? '<button onclick="shareMemoryToChat(\'' + m.id + '\')" class="flex-1 bg-igBlue hover:bg-blue-600 text-[9px] font-bold py-1 rounded text-white transition"><i class="fa-solid fa-share"></i> Kirim</button>'
+                        : '';
+                    return '<div class="w-48 md:w-56 bg-black border border-igBorder rounded-xl p-2.5 flex flex-col gap-2 flex-shrink-0 relative group shadow-lg">' +
+                        '<div class="w-full aspect-video rounded overflow-hidden relative">' +
+                            '<img src="' + m.image + '" class="w-full h-full object-cover" onerror="this.src=\'https://picsum.photos/300/200\'">' +
+                            '<span class="absolute top-1 left-1 text-[8px] bg-igBlue text-white font-bold uppercase px-1.5 py-0.5 rounded">' + formatIndonesianDate(m.date) + '</span>' +
+                        '</div>' +
+                        '<div class="min-w-0">' +
+                            '<h5 class="font-bold text-[11px] text-white truncate">' + m.title + '</h5>' +
+                            '<p class="text-[9px] text-gray-500 flex items-center gap-1 mt-0.5">' +
+                                '<img src="' + creator.avatar + '" class="w-3.5 h-3.5 rounded-full">' +
+                                '<span class="truncate">@' + creator.username + '</span>' +
+                            '</p>' +
+                        '</div>' +
+                        '<div class="flex gap-1.5 mt-1">' +
+                            '<button onclick="viewMemoryDetails(\'' + m.id + '\')" class="flex-1 bg-igHover hover:bg-igBorder text-[9px] font-bold py-1 rounded transition">Detail</button>' +
+                            shareBtn +
+                        '</div>' +
+                    '</div>';
+                }).join('');
+            } else {
+                shortcutMemoriesHtml = '<div class="w-full text-center text-gray-500 py-6 text-xs">' +
+                    '<i class="fa-regular fa-folder-open text-xl mb-1 block"></i>' +
+                    'Belum ada kenangan bersama yang tersimpan.' +
+                '</div>';
+            }
 
             return `
                 <div class="fixed bottom-16 md:bottom-6 left-4 md:left-72 right-4 bg-igGray/95 border border-igBlue/40 rounded-2xl shadow-2xl z-40 p-4 transition-all duration-300 backdrop-blur-md max-h-[340px] flex flex-col">
@@ -560,35 +575,7 @@
 
                     <!-- Horisontal List Cards Kenangan Bersama -->
                     <div class="flex-1 overflow-x-auto overflow-y-hidden flex gap-4 p-1 no-scrollbar items-center">
-                        ${filteredMemories.length > 0 ? filteredMemories.map(m => {
-                            const creator = accounts.find(a => a.id === m.userId) || { username: "anggota", avatar: "https://api.dicebear.com/7.x/adventurer/svg?seed=anon" };
-                            return `
-                                <div class="w-48 md:w-56 bg-black border border-igBorder rounded-xl p-2.5 flex flex-col gap-2 flex-shrink-0 relative group shadow-lg">
-                                    <div class="w-full aspect-video rounded overflow-hidden relative">
-                                        <img src="${m.image}" class="w-full h-full object-cover" onerror="this.src='https://picsum.photos/300/200'">
-                                        <span class="absolute top-1 left-1 text-[8px] bg-igBlue text-white font-bold uppercase px-1.5 py-0.5 rounded">${formatIndonesianDate(m.date)}</span>
-                                    </div>
-                                    <div class="min-w-0">
-                                        <h5 class="font-bold text-[11px] text-white truncate">${m.title}</h5>
-                                        <p class="text-[9px] text-gray-500 flex items-center gap-1 mt-0.5">
-                                            <img src="${creator.avatar}" class="w-3.5 h-3.5 rounded-full">
-                                            <span class="truncate">@${creator.username}</span>
-                                        </p>
-                                    </div>
-                                    <div class="flex gap-1.5 mt-1">
-                                        <button onclick="viewMemoryDetails('${m.id}')" class="flex-1 bg-igHover hover:bg-igBorder text-[9px] font-bold py-1 rounded transition">Detail</button>
-                                        ${activePage === 'messages' && currentChatWithId ? `
-                                            <button onclick="shareMemoryToChat('${m.id}')" class="flex-1 bg-igBlue hover:bg-blue-600 text-[9px] font-bold py-1 rounded text-white transition"><i class="fa-solid fa-share"></i> Kirim</button>
-                                        ` : ''}
-                                    </div>
-                                </div>
-                            `;
-                        }).join('') : `
-                            <div class="w-full text-center text-gray-500 py-6 text-xs">
-                                <i class="fa-regular fa-folder-open text-xl mb-1 block"></i>
-                                Belum ada kenangan bersama yang tersimpan.
-                            </div>
-                        `}
+                        ${shortcutMemoriesHtml}
                     </div>
                 </div>
             `;
@@ -631,9 +618,7 @@
             );
         }
 
-
         // --- HALAMAN UTAMA: KALENDER & TIMELINE KERSAMA (BERANDA) ---
-
         function renderHome() {
             const currentUser = getCurrentUser();
             if (!currentUser) return "";
@@ -648,6 +633,78 @@
 
             // Daftar singkat teman-teman online untuk kemudahan berteman
             const onlineFriends = accounts.filter(a => a.id !== currentUser.id && isUserOnline(a));
+
+            // Konversi list teman online menjadi HTML agar aman dari nested backticks
+            let onlineFriendsHtml = "";
+            if (onlineFriends.length > 0) {
+                onlineFriendsHtml = onlineFriends.map(friend => {
+                    return '<div onclick="viewUserProfil(\'' + friend.id + '\')" class="flex flex-col items-center gap-1 cursor-pointer flex-shrink-0 text-center min-w-[64px]">' +
+                        '<div class="relative">' +
+                            '<img src="' + friend.avatar + '" class="w-11 h-11 rounded-full p-0.5 border-2 border-green-500 bg-black">' +
+                            '<span class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-black rounded-full animate-pulse"></span>' +
+                        '</div>' +
+                        '<span class="text-[10px] text-gray-300 truncate w-14">@' + friend.username + '</span>' +
+                    '</div>';
+                }).join('');
+            } else {
+                onlineFriendsHtml = '<p class="text-[11px] text-gray-500 py-2 font-medium">Tidak ada teman lain yang aktif saat ini.</p>';
+            }
+
+            // Status filter tanggal
+            let filterStatusHtml = "";
+            if (selectedDateStr) {
+                filterStatusHtml = '<div class="flex items-center justify-between text-xs bg-igDarkBlue/30 text-igBlue border border-igBlue/30 p-2.5 rounded-lg">' +
+                    '<span>Memfilter tanggal: <strong>' + selectedDateStr + '</strong></span>' +
+                    '<button onclick="clearDateFilter()" class="underline font-bold hover:text-white">Hapus Filter</button>' +
+                '</div>';
+            }
+
+            // Perenderan list kenangan tanpa backticks bersarang
+            let displayedMemoriesHtml = "";
+            if (displayedMemories.length > 0) {
+                displayedMemoriesHtml = displayedMemories.map(m => {
+                    const creator = accounts.find(a => a.id === m.userId) || { username: "anggota", fullName: "Anggota PlengerGram", avatar: "https://api.dicebear.com/7.x/adventurer/svg?seed=anon" };
+                    const isMyMemory = m.userId === currentUser.id;
+                    const onlineStatus = isUserOnline(creator);
+                    const onlineDotClass = onlineStatus ? 'bg-green-500' : 'bg-gray-600';
+                    
+                    let actionBtnHtml = '<span class="text-[9px] bg-igBorder text-gray-400 px-2 py-1 rounded-md">Teman</span>';
+                    if (isMyMemory) {
+                        actionBtnHtml = '<button onclick="confirmDeleteMemory(\'' + m.id + '\')" class="text-xs text-gray-500 hover:text-red-500 transition px-2.5 py-1.5 rounded-lg hover:bg-red-950/20" title="Hapus Kenangan Anda"><i class="fa-regular fa-trash-can"></i></button>';
+                    }
+
+                    return '<div class="bg-igGray border border-igBorder rounded-xl overflow-hidden shadow-lg transition hover:border-gray-700">' +
+                        '<div class="p-4 border-b border-igBorder flex justify-between items-center bg-gradient-to-r from-igHover to-black">' +
+                            '<div class="flex items-center gap-2.5">' +
+                                '<div class="relative">' +
+                                    '<img src="' + creator.avatar + '" class="w-8 h-8 rounded-full bg-black border-igBorder p-0.5">' +
+                                    '<span class="absolute bottom-0 right-0 w-2.5 h-2.5 ' + onlineDotClass + ' rounded-full border border-black"></span>' +
+                                '</div>' +
+                                '<div>' +
+                                    '<p class="text-xs font-bold text-white hover:underline cursor-pointer" onclick="viewUserProfil(\'' + creator.id + '\')">@' + creator.username + '</p>' +
+                                    '<p class="text-[9px] text-gray-400">Berbagi pada ' + formatIndonesianDate(m.date) + '</p>' +
+                                '</div>' +
+                            '</div>' +
+                            actionBtnHtml +
+                        '</div>' +
+                        '<div class="p-4 bg-igHover/20">' +
+                            '<h3 class="font-bold text-sm text-white">' + m.title + '</h3>' +
+                        '</div>' +
+                        '<div class="w-full aspect-video bg-black flex items-center justify-center overflow-hidden relative group">' +
+                            '<img src="' + m.image + '" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" onerror="this.src=\'https://images.unsplash.com/photo-1509248961158-e54f6934749c?auto=format&fit=crop&w=800&q=80\'">' +
+                        '</div>' +
+                        '<div class="p-4 bg-igGray">' +
+                            '<p class="text-xs text-gray-300 leading-relaxed whitespace-pre-wrap">' + m.description + '</p>' +
+                        '</div>' +
+                    '</div>';
+                }).join('');
+            } else {
+                displayedMemoriesHtml = '<div class="text-center py-20 bg-igGray rounded-xl border border-igBorder p-8">' +
+                    '<i class="fa-regular fa-folder-open text-5xl mb-3 text-gray-600"></i>' +
+                    '<p class="text-sm text-gray-400 font-semibold">Belum ada kenangan bersama</p>' +
+                    '<p class="text-xs text-gray-500 mt-1">Ayo jadilah yang pertama membagikan kenangan indah Anda di kalender bersama ini!</p>' +
+                '</div>';
+            }
 
             return `
                 <div class="flex-1 flex flex-col md:flex-row h-screen overflow-hidden pb-16 md:pb-0">
@@ -683,17 +740,7 @@
                                 <span class="w-2 h-2 bg-green-500 rounded-full animate-ping"></span> Teman yang Sedang Online
                             </h4>
                             <div class="flex gap-3 overflow-x-auto py-1 no-scrollbar">
-                                ${onlineFriends.length > 0 ? onlineFriends.map(friend => `
-                                    <div onclick="viewUserProfil('${friend.id}')" class="flex flex-col items-center gap-1 cursor-pointer flex-shrink-0 text-center min-w-[64px]">
-                                        <div class="relative">
-                                            <img src="${friend.avatar}" class="w-11 h-11 rounded-full p-0.5 border-2 border-green-500 bg-black">
-                                            <span class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-black rounded-full animate-pulse"></span>
-                                        </div>
-                                        <span class="text-[10px] text-gray-300 truncate w-14">@${friend.username}</span>
-                                    </div>
-                                `).join('') : `
-                                    <p class="text-[11px] text-gray-500 py-2">Tidak ada teman lain yang aktif saat ini.</p>
-                                `}
+                                ${onlineFriendsHtml}
                             </div>
                         </div>
 
@@ -705,18 +752,13 @@
                                 <button onclick="changeMonth(1)" class="p-1.5 hover:bg-igHover rounded-lg transition"><i class="fa-solid fa-chevron-right text-sm text-gray-400"></i></button>
                             </div>
                             ${calendarHtml}
-                            ${selectedDateStr ? `
-                                <div class="flex items-center justify-between text-xs bg-igDarkBlue/30 text-igBlue border border-igBlue/30 p-2.5 rounded-lg">
-                                    <span>Memfilter tanggal: <strong>${selectedDateStr}</strong></span>
-                                    <button onclick="clearDateFilter()" class="underline font-bold hover:text-white">Hapus Filter</button>
-                                </div>
-                            ` : ''}
+                            ${filterStatusHtml}
                         </div>
 
                         <!-- Form Tambah Kenangan Baru -->
                         <div class="bg-igGray border border-igBorder rounded-xl p-4 flex flex-col gap-3">
                             <h3 class="font-bold text-sm text-white flex items-center gap-2"><i class="fa-solid fa-circle-plus text-igBlue"></i> Tambah Kenangan Baru</h3>
-                            <p class="text-[10px] text-gray-400 leading-relaxed">Plengeran yang Anda tambahkan di bawah ini akan masuk ke timeline bersama and dapat dilihat oleh semua teman Anda.</p>
+                            <p class="text-[10px] text-gray-400 leading-relaxed">Plengeran yang Anda tambahkan di bawah ini akan masuk ke timeline bersama dan dapat dilihat oleh semua teman Anda.</p>
                             <form onsubmit="addNewMemory(event)" class="flex flex-col gap-3 mt-1">
                                 <div>
                                     <label class="block text-[11px] text-gray-400 mb-1 font-semibold">Tanggal Kenangan *</label>
@@ -727,9 +769,9 @@
                                     <input id="mem-title" type="text" placeholder="cth: Kumpul di Kafe Bersama" required class="w-full bg-black border border-igBorder rounded px-3 py-2 text-xs text-white outline-none focus:border-gray-500">
                                 </div>
                                 <div>
-                                    <label class="block text-[11px] text-gray-400 mb-1 font-semibold">Foto / Ilustrasi Kenangan (ID Drive / URL) *</label>
+                                    <label class="block text-[11px] text-gray-400 mb-1 font-semibold">Foto / Ilustrasi Kenangan (URL) *</label>
                                     <div class="flex gap-2">
-                                        <input id="mem-image" type="text" placeholder="Masukkan ID Google Drive atau URL foto..." required class="flex-1 bg-black border border-igBorder rounded px-3 py-2 text-xs text-white outline-none focus:border-gray-500">
+                                        <input id="mem-image" type="text" placeholder="Masukkan URL foto..." required class="flex-1 bg-black border border-igBorder rounded px-3 py-2 text-xs text-white outline-none focus:border-gray-500">
                                         <button type="button" onclick="generateRandomIllustration()" class="bg-igHover hover:bg-igBorder border border-igBorder px-3 py-2 rounded text-xs font-semibold whitespace-nowrap">Acak Gambar</button>
                                     </div>
                                 </div>
@@ -753,54 +795,7 @@
                             </div>
 
                             <div class="flex flex-col gap-6">
-                                ${displayedMemories.length > 0 ? displayedMemories.map(m => {
-                                    const creator = accounts.find(a => a.id === m.userId) || { username: "anggota", fullName: "Anggota PlengerGram", avatar: "https://api.dicebear.com/7.x/adventurer/svg?seed=anon" };
-                                    const isMyMemory = m.userId === currentUser.id;
-                                    const onlineStatus = isUserOnline(creator);
-
-                                    return `
-                                        <div class="bg-igGray border border-igBorder rounded-xl overflow-hidden shadow-lg transition hover:border-gray-700">
-                                            <!-- Card Header: Atribusi Pembuat Kenangan -->
-                                            <div class="p-4 border-b border-igBorder flex justify-between items-center bg-gradient-to-r from-igHover to-black">
-                                                <div class="flex items-center gap-2.5">
-                                                    <div class="relative">
-                                                        <img src="${creator.avatar}" class="w-8 h-8 rounded-full bg-black border border-igBorder p-0.5">
-                                                        <span class="absolute bottom-0 right-0 w-2 h-2 ${onlineStatus ? 'bg-green-500' : 'bg-gray-600'} rounded-full border border-black"></span>
-                                                    </div>
-                                                    <div>
-                                                        <p class="text-xs font-bold text-white hover:underline cursor-pointer" onclick="viewUserProfil('${creator.id}')">@${creator.username}</p>
-                                                        <p class="text-[9px] text-gray-400">Berbagi pada ${formatIndonesianDate(m.date)}</p>
-                                                    </div>
-                                                </div>
-                                                
-                                                <!-- Hanya pembuat yang dapat menghapus kenangannya sendiri -->
-                                                ${isMyMemory ? `
-                                                    <button onclick="confirmDeleteMemory('${m.id}')" class="text-xs text-gray-500 hover:text-red-500 transition px-2.5 py-1.5 rounded-lg hover:bg-red-950/20" title="Hapus Kenangan Anda"><i class="fa-regular fa-trash-can"></i></button>
-                                                ` : `
-                                                    <span class="text-[9px] bg-igBorder text-gray-400 px-2 py-1 rounded-md">Teman</span>
-                                                `}
-                                            </div>
-
-                                            <div class="p-4 bg-igHover/20">
-                                                <h3 class="font-bold text-sm text-white">${m.title}</h3>
-                                            </div>
-
-                                            <div class="w-full aspect-video bg-black flex items-center justify-center overflow-hidden relative group">
-                                                <img src="${m.image}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" onerror="this.src='https://images.unsplash.com/photo-1509248961158-e54f6934749c?auto=format&fit=crop&w=800&q=80'">
-                                            </div>
-
-                                            <div class="p-4 bg-igGray">
-                                                <p class="text-xs text-gray-300 leading-relaxed whitespace-pre-wrap">${m.description}</p>
-                                            </div>
-                                        </div>
-                                    `;
-                                }).join('') : `
-                                    <div class="text-center py-20 bg-igGray rounded-xl border border-igBorder p-8">
-                                        <i class="fa-regular fa-folder-open text-5xl mb-3 text-gray-600"></i>
-                                        <p class="text-sm text-gray-400 font-semibold">Belum ada kenangan bersama</p>
-                                        <p class="text-xs text-gray-500 mt-1">Ayo jadilah yang pertama membagikan kenangan indah Anda di kalender bersama ini!</p>
-                                    </div>
-                                `}
+                                ${displayedMemoriesHtml}
                             </div>
                         </div>
                     </div>
@@ -848,7 +843,7 @@
                     <td class="p-1">
                         <div onclick="filterByDate('${formattedDate}')" class="${cellClass}">
                             ${day}
-                            ${hasMemory && !isSelected ? `<span class="absolute bottom-0.5 left-1/2 -translate-x-1/2 w-1 h-1 bg-igBlue rounded-full"></span>` : ''}
+                            ${hasMemory && !isSelected ? `<span class="absolute bottom-0.5 left-1/2 -translate-x-1/2 w-1.5 h-1.5 bg-igBlue rounded-full"></span>` : ''}
                         </div>
                     </td>
                 `);
@@ -878,7 +873,6 @@
             `;
         }
 
-
         // --- MANAJEMEN TIMELINE UTILITY ---
         window.addNewMemory = async function(event) {
             event.preventDefault();
@@ -889,33 +883,6 @@
             const currentUser = getCurrentUser();
 
             if (!date || !title || !image || !description || !currentUser) return;
-
-            // Logika konversi Google Drive ke Direct Link
-            const driveReg1 = /\/file\/d\/([a-zA-Z0-9_-]+)/;
-            const driveReg2 = /[\?&]id=([a-zA-Z0-9_-]+)/;
-            const driveReg3 = /lh3\.googleusercontent\.com\/d\/([a-zA-Z0-9_-]+)/;
-            
-            let driveId = "";
-            if (image.includes("drive.google.com")) {
-                const match1 = image.match(driveReg1);
-                const match2 = image.match(driveReg2);
-                if (match1 && match1[1]) {
-                    driveId = match1[1];
-                } else if (match2 && match2[1]) {
-                    driveId = match2[1];
-                }
-            } else if (image.includes("lh3.googleusercontent.com")) {
-                const match3 = image.match(driveReg3);
-                if (match3 && match3[1]) {
-                    driveId = match3[1];
-                }
-            } else if (!image.startsWith("http") && image.length > 5) {
-                driveId = image;
-            }
-
-            if (driveId) {
-                image = `https://lh3.googleusercontent.com/d/${driveId}`;
-            }
 
             const newMemoryId = Date.now().toString();
             const newMemory = {
@@ -988,9 +955,7 @@
             }
         }
 
-
         // --- HALAMAN DIRECT MESSAGES (DM) & GROUP CHAT ---
-
         function renderMessages() {
             const currentUser = getCurrentUser();
             if (!currentUser) return "";
@@ -1010,6 +975,129 @@
 
             const activeRoomId = activeFriend ? getChatRoomId(currentUser.id, activeFriend.id) : null;
             const chatHistory = activeRoomId ? (chats[activeRoomId] || []) : [];
+
+            // Membuat HTML daftar teman tanpa nested backticks agar menghindari SyntaxError
+            let friendsListHtml = "";
+            if (humanFriends.length > 0) {
+                friendsListHtml = humanFriends.map(friend => {
+                    const roomKey = getChatRoomId(currentUser.id, friend.id);
+                    const friendChats = chats[roomKey] || [];
+                    const lastChat = friendChats[friendChats.length - 1] || { text: "Mulai percakapan...", time: "" };
+                    const isCurrent = friend.id === currentChatWithId;
+                    const isWeFollowing = isFollowingTarget(currentUser.id, friend.id);
+                    const isOnline = isUserOnline(friend);
+                    const onlineDotClass = isOnline ? 'bg-green-500 animate-pulse' : 'bg-gray-600';
+                    const onlineIndicator = isOnline ? '<span class="w-1.5 h-1.5 bg-green-500 rounded-full"></span>' : '';
+                    const activeBgClass = isCurrent ? 'bg-igHover border border-gray-800' : 'hover:bg-igHover';
+                    const followingBadge = isWeFollowing ? '<span class="text-[8px] text-igBlue font-semibold bg-igBlue/10 px-1 py-0.2 rounded inline-block">Diikuti</span>' : '';
+                    const onlineBadge = isOnline ? '<span class="text-[8px] text-green-500 font-semibold bg-green-500/10 px-1 py-0.2 rounded inline-block">Online</span>' : '<span class="text-[8px] text-gray-500 font-semibold bg-gray-500/10 px-1 py-0.2 rounded inline-block">Offline</span>';
+
+                    return '<div onclick="selectChat(\'' + friend.id + '\')" class="flex items-center gap-3 p-2.5 rounded-lg cursor-pointer transition ' + activeBgClass + '">' +
+                        '<div class="relative flex-shrink-0">' +
+                            '<img src="' + friend.avatar + '" class="w-10 h-10 rounded-full bg-igGray p-0.5 border border-igBorder">' +
+                            '<span class="absolute bottom-0 right-0 ' + onlineDotClass + ' w-2.5 h-2.5 rounded-full border-2 border-black"></span>' +
+                        '</div>' +
+                        '<div class="flex-1 min-w-0">' +
+                            '<div class="flex justify-between items-baseline">' +
+                                '<div class="flex items-center gap-1">' +
+                                    '<h4 class="font-bold text-xs text-white truncate">@' + friend.username + '</h4>' +
+                                    onlineIndicator +
+                                '</div>' +
+                                '<span class="text-[9px] text-gray-500">' + lastChat.time + '</span>' +
+                            '</div>' +
+                            '<p class="text-[10px] text-gray-400 truncate">' + lastChat.text + '</p>' +
+                            '<div class="flex gap-1 mt-0.5">' +
+                                followingBadge +
+                                onlineBadge +
+                            '</div>' +
+                        '</div>' +
+                    '</div>';
+                }).join('');
+            }
+
+            // Area header percakapan yang aktif (tanpa nested backticks kondisional)
+            let activeChatHeaderHtml = "";
+            if (activeFriend) {
+                const isGroup = activeFriend.id === 'group_public';
+                const avatarHtml = isGroup 
+                    ? '<div class="w-9 h-9 rounded-full bg-igBlue/20 flex items-center justify-center border border-igBlue text-igBlue"><i class="fa-solid fa-earth-americas"></i></div>'
+                    : '<img src="' + activeFriend.avatar + '" class="w-9 h-9 rounded-full bg-igGray p-0.5 border border-igBorder">';
+                
+                const followBtnHtml = !isGroup 
+                    ? '<button onclick="toggleFollowUser(\'' + activeFriend.id + '\')" class="text-[9px] font-bold px-2 py-0.5 rounded-md ' + (isFollowingTarget(currentUser.id, activeFriend.id) ? 'bg-igBorder text-gray-300' : 'bg-igBlue text-white') + '">' + (isFollowingTarget(currentUser.id, activeFriend.id) ? 'Diikuti' : 'Ikuti') + '</button>'
+                    : '<span class="text-[9px] bg-igBlue/20 text-igBlue font-bold px-2 py-0.5 rounded">Bisa Chat Bersama</span>';
+
+                const nameOnClick = !isGroup ? "viewUserProfil('" + activeFriend.id + "')" : "";
+
+                activeChatHeaderHtml = `
+                    <div class="flex items-center justify-between p-4 border-b border-igBorder bg-igGray/10">
+                        <div class="flex items-center gap-3">
+                            <button onclick="backToChatList()" class="md:hidden text-lg mr-1 text-gray-400"><i class="fa-solid fa-arrow-left"></i></button>
+                            <div class="relative">
+                                ${avatarHtml}
+                                <span class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 rounded-full border-2 border-black"></span>
+                            </div>
+                            <div>
+                                <div class="flex items-center gap-2">
+                                    <h3 class="font-bold text-xs text-white cursor-pointer hover:underline" onclick="${nameOnClick}">${activeFriend.fullName}</h3>
+                                    ${followBtnHtml}
+                                </div>
+                                <p class="text-[10px] text-gray-500">@${activeFriend.username}</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Membuat HTML daftar riwayat pesan tanpa nested backticks agar menghindari SyntaxError
+            let chatMessagesHtml = "";
+            if (chatHistory.length > 0) {
+                chatMessagesHtml = chatHistory.map(msg => {
+                    const isMe = msg.sender === currentUser.id;
+                    const msgSender = accounts.find(a => a.id === msg.sender) || { username: 'anggota', avatar: 'https://api.dicebear.com/7.x/adventurer/svg?seed=anon' };
+                    
+                    let messageContentHtml = "";
+                    if (msg.isSharedMemory) {
+                        messageContentHtml = 
+                            '<div class="flex flex-col gap-2 rounded-lg overflow-hidden bg-black/30 p-2 border border-white/10 max-w-[220px]">' +
+                                '<p class="text-[9px] font-bold text-yellow-400 flex items-center gap-1">' +
+                                    '<i class="fa-solid fa-calendar-heart"></i> Berbagi Plengeran Bersama' +
+                                '</p>' +
+                                '<img src="' + msg.memoryImage + '" class="w-full aspect-video object-cover rounded" onerror="this.src=\'https://picsum.photos/400/300\'">' +
+                                '<p class="text-[10px] font-semibold leading-snug">' + msg.text + '</p>' +
+                            '</div>';
+                    } else {
+                        messageContentHtml = msg.text;
+                    }
+
+                    const senderNameHtml = (activeFriend.id === 'group_public' && !isMe) 
+                        ? '<span class="text-[9px] text-igBlue font-bold ml-2 mb-0.5 hover:underline cursor-pointer" onclick="viewUserProfil(\'' + msgSender.id + '\')">@' + msgSender.username + '</span>' 
+                        : '';
+
+                    const senderAvatarHtml = (activeFriend.id === 'group_public' && !isMe)
+                        ? '<img src="' + msgSender.avatar + '" class="w-4 h-4 rounded-full bg-black/30">'
+                        : '';
+
+                    return `
+                        <div class="flex ${isMe ? 'justify-end' : 'justify-start'}">
+                            <div class="max-w-[75%] flex flex-col">
+                                ${senderNameHtml}
+                                <div class="p-3 rounded-2xl text-xs flex gap-2 items-start ${isMe ? 'bg-igBlue text-white rounded-br-none' : 'bg-igBorder text-gray-100 rounded-bl-none'}">
+                                    ${senderAvatarHtml}
+                                    <div>${messageContentHtml}</div>
+                                </div>
+                                <span class="text-[8px] text-gray-500 mt-0.5 ${isMe ? 'text-right' : 'text-left'}">${msg.time}</span>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            } else {
+                chatMessagesHtml = activeFriend ? `
+                    <div class="text-center py-20 text-gray-500 text-xs">
+                        Kirim pesan pertama untuk memulai obrolan ${activeFriend.id === 'group_public' ? 'grup bersama!' : `dengan @${activeFriend.username}.`}
+                    </div>
+                ` : '';
+            }
 
             return `
                 <div class="flex-1 flex h-screen overflow-hidden pb-16 md:pb-0">
@@ -1053,119 +1141,27 @@
                             ${humanFriends.length === 0 ? `
                                 <div class="text-center py-10 px-4 text-gray-500 text-xs">
                                     <i class="fa-regular fa-comments text-3xl mb-2 text-gray-600 block"></i>
-                                    Belum ada pengguna lain terdaftar.
+                                    Belum ada pengguna terdaftar lain.
                                 </div>
                             ` : ''}
 
                             <!-- Section Teman Pribadi -->
-                            ${humanFriends.map(friend => {
-                                const roomKey = getChatRoomId(currentUser.id, friend.id);
-                                const friendChats = chats[roomKey] || [];
-                                const lastChat = friendChats[friendChats.length - 1] || { text: "Mulai percakapan...", time: "" };
-                                const isCurrent = friend.id === currentChatWithId;
-                                const isWeFollowing = isFollowingTarget(currentUser.id, friend.id);
-                                const isOnline = isUserOnline(friend);
-
-                                return `
-                                    <div onclick="selectChat('${friend.id}')" class="flex items-center gap-3 p-2.5 rounded-lg cursor-pointer transition ${isCurrent ? 'bg-igHover border border-gray-800' : 'hover:bg-igHover'}">
-                                        <div class="relative flex-shrink-0">
-                                            <img src="${friend.avatar}" class="w-10 h-10 rounded-full bg-igGray p-0.5 border border-igBorder">
-                                            <span class="absolute bottom-0 right-0 ${isOnline ? 'bg-green-500 animate-pulse' : 'bg-gray-600'} w-2.5 h-2.5 rounded-full border-2 border-black"></span>
-                                        </div>
-                                        <div class="flex-1 min-w-0">
-                                            <div class="flex justify-between items-baseline">
-                                                <div class="flex items-center gap-1">
-                                                    <h4 class="font-bold text-xs text-white truncate">@${friend.username}</h4>
-                                                    ${isOnline ? '<span class="w-1.5 h-1.5 bg-green-500 rounded-full"></span>' : ''}
-                                                </div>
-                                                <span class="text-[9px] text-gray-500">${lastChat.time}</span>
-                                            </div>
-                                            <p class="text-[10px] text-gray-400 truncate">${lastChat.text}</p>
-                                            <div class="flex gap-1 mt-0.5">
-                                                ${isWeFollowing ? '<span class="text-[8px] text-igBlue font-semibold bg-igBlue/10 px-1 py-0.2 rounded inline-block">Diikuti</span>' : ''}
-                                                ${isOnline ? '<span class="text-[8px] text-green-500 font-semibold bg-green-500/10 px-1 py-0.2 rounded inline-block">Online</span>' : '<span class="text-[8px] text-gray-500 font-semibold bg-gray-500/10 px-1 py-0.2 rounded inline-block">Offline</span>'}
-                                            </div>
-                                        </div>
-                                    </div>
-                                `;
-                            }).join('')}
+                            ${friendsListHtml}
                         </div>
                     </div>
 
                     <!-- Area Detail Chat Tengah -->
                     <div class="flex-1 flex flex-col bg-black h-full ${!currentChatWithId && window.innerWidth < 768 ? 'hidden' : 'flex'}">
                         ${activeFriend ? `
-                            <div class="flex items-center justify-between p-4 border-b border-igBorder bg-igGray/10">
-                                <div class="flex items-center gap-3">
-                                    <button onclick="backToChatList()" class="md:hidden text-lg mr-1 text-gray-400"><i class="fa-solid fa-arrow-left"></i></button>
-                                    <div class="relative">
-                                        ${activeFriend.id === 'group_public' ? `
-                                            <div class="w-9 h-9 rounded-full bg-igBlue/20 flex items-center justify-center border border-igBlue text-igBlue">
-                                                <i class="fa-solid fa-earth-americas"></i>
-                                            </div>
-                                        ` : `
-                                            <img src="${activeFriend.avatar}" class="w-9 h-9 rounded-full bg-igGray p-0.5 border border-igBorder">
-                                        `}
-                                        <span class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 rounded-full border-2 border-black"></span>
-                                    </div>
-                                    <div>
-                                        <div class="flex items-center gap-2">
-                                            <h3 class="font-bold text-xs text-white cursor-pointer hover:underline" onclick="${activeFriend.id !== 'group_public' ? `viewUserProfil('${activeFriend.id}')` : ''}">${activeFriend.fullName}</h3>
-                                            ${activeFriend.id !== 'group_public' ? `
-                                                <button onclick="toggleFollowUser('${activeFriend.id}')" class="text-[9px] font-bold px-2 py-0.5 rounded-md ${isFollowingTarget(currentUser.id, activeFriend.id) ? 'bg-igBorder text-gray-300' : 'bg-igBlue text-white'}">
-                                                    ${isFollowingTarget(currentUser.id, activeFriend.id) ? 'Diikuti' : 'Ikuti'}
-                                                </button>
-                                            ` : `
-                                                <span class="text-[9px] bg-igBlue/20 text-igBlue font-bold px-2 py-0.5 rounded">Bisa Chat Bersama</span>
-                                            `}
-                                        </div>
-                                        <p class="text-[10px] text-gray-500">@${activeFriend.username}</p>
-                                    </div>
-                                </div>
-                            </div>
+                            ${activeChatHeaderHtml}
 
                             <div id="chat-messages" class="flex-1 p-4 overflow-y-auto flex flex-col gap-3 bg-gradient-to-b from-[#0a0a0a] to-black no-scrollbar">
-                                ${chatHistory.length > 0 ? chatHistory.map(msg => {
-                                    const isMe = msg.sender === currentUser.id;
-                                    const msgSender = accounts.find(a => a.id === msg.sender) || { username: 'anggota', avatar: 'https://api.dicebear.com/7.x/adventurer/svg?seed=anon' };
-                                    
-                                    return `
-                                        <div class="flex ${isMe ? 'justify-end' : 'justify-start'}">
-                                            <div class="max-w-[75%] flex flex-col">
-                                                <!-- Tampilkan nama pengirim jika di Grup Publik -->
-                                                ${activeFriend.id === 'group_public' && !isMe ? `
-                                                    <span class="text-[9px] text-igBlue font-bold ml-2 mb-0.5 hover:underline cursor-pointer" onclick="viewUserProfil('${msgSender.id}')">@${msgSender.username}</span>
-                                                ` : ''}
-                                                <div class="p-3 rounded-2xl text-xs flex gap-2 items-start ${isMe ? 'bg-igBlue text-white rounded-br-none' : 'bg-igBorder text-gray-100 rounded-bl-none'}">
-                                                    ${activeFriend.id === 'group_public' && !isMe ? `
-                                                        <img src="${msgSender.avatar}" class="w-4 h-4 rounded-full bg-black/30">
-                                                    ` : ''}
-                                                    <div>
-                                                        ${msg.isSharedMemory ? `
-                                                            <div class="flex flex-col gap-2 rounded-lg overflow-hidden bg-black/30 p-2 border border-white/10 max-w-[220px]">
-                                                                <p class="text-[9px] font-bold text-yellow-400 flex items-center gap-1">
-                                                                    <i class="fa-solid fa-calendar-heart"></i> Berbagi Plengeran Bersama
-                                                                </p>
-                                                                <img src="${msg.memoryImage}" class="w-full aspect-video object-cover rounded" onerror="this.src='https://picsum.photos/400/300'">
-                                                                <p class="text-[10px] font-semibold leading-snug">${msg.text}</p>
-                                                            </div>
-                                                        ` : msg.text}
-                                                    </div>
-                                                </div>
-                                                <span class="text-[8px] text-gray-500 mt-0.5 ${isMe ? 'text-right' : 'text-left'}">${msg.time}</span>
-                                            </div>
-                                        </div>
-                                    `;
-                                }).join('') : `
-                                    <div class="text-center py-20 text-gray-500 text-xs">
-                                        Kirim pesan pertama untuk memulai obrolan ${activeFriend.id === 'group_public' ? 'grup bersama!' : `dengan @${activeFriend.username}.`}
-                                    </div>
-                                `}
+                                ${chatMessagesHtml}
                             </div>
 
                             <div class="p-4 border-t border-igBorder bg-black">
                                 <form onsubmit="sendMessage(event)" class="flex items-center bg-igGray border border-igBorder rounded-full px-4 py-2">
-                                    <input id="message-input" type="text" placeholder="Ketik pesan..." class="flex-1 bg-transparent border-none text-xs outline-none text-white placeholder-gray-500 py-1">
+                                    <input id="message-input" type="text" placeholder="Ketik pesan..." class="flex-1 bg-transparent border-none text-xs outline-none text-white placeholder-gray-500 py-1" autocomplete="off">
                                     <button type="submit" class="text-igBlue font-bold text-xs hover:text-white transition ml-2">Kirim</button>
                                 </form>
                             </div>
@@ -1199,7 +1195,7 @@
                 if (chatContainer) {
                     chatContainer.scrollTop = chatContainer.scrollHeight;
                 }
-            }, 50);
+            }, 100);
         }
 
         window.shareMemoryToChat = async function(memoryId) {
@@ -1272,9 +1268,7 @@
             }
         }
 
-
         // --- HALAMAN PROFIL AKUN ---
-
         function renderProfile(targetUserId = null) {
             const currentUser = getCurrentUser();
             if (!currentUser) return "";
@@ -1297,6 +1291,39 @@
             );
 
             const isOnline = isUserOnline(userToShow);
+
+            // Membuat HTML untuk list rekomendasi teman (tanpa backticks bersarang)
+            let otherAccountsHtml = "";
+            if (otherAccounts.length > 0) {
+                otherAccountsHtml = otherAccounts.map(acc => {
+                    const friendOnline = isUserOnline(acc);
+                    const onlineDotClass = friendOnline ? 'bg-green-500' : 'bg-gray-600';
+                    const onlineStatusBadge = friendOnline ? '<span class="w-1.5 h-1.5 bg-green-500 rounded-full"></span>' : '';
+                    const followBtnClass = isFollowingTarget(currentUser.id, acc.id) ? 'bg-igBorder text-gray-400' : 'bg-igBlue text-white';
+                    const followBtnText = isFollowingTarget(currentUser.id, acc.id) ? 'Batal Ikut' : 'Ikuti';
+
+                    return '<div class="flex items-center justify-between bg-black/30 p-2.5 rounded-xl border border-igBorder/40">' +
+                        '<div class="flex items-center gap-2 cursor-pointer" onclick="viewUserProfil(\'' + acc.id + '\')">' +
+                            '<div class="relative">' +
+                                '<img src="' + acc.avatar + '" class="w-8 h-8 rounded-full bg-igGray">' +
+                                '<span class="absolute bottom-0 right-0 w-2.5 h-2.5 ' + onlineDotClass + ' rounded-full border border-black"></span>' +
+                            '</div>' +
+                            '<div class="text-left min-w-0">' +
+                                '<div class="flex items-center gap-1">' +
+                                    '<p class="font-bold text-xs text-white truncate hover:underline">@' + acc.username + '</p>' +
+                                    onlineStatusBadge +
+                                '</div>' +
+                                '<p class="text-[9px] text-gray-500 truncate">' + acc.fullName + '</p>' +
+                            '</div>' +
+                        '</div>' +
+                        '<button onclick="toggleFollowUser(\'' + acc.id + '\')" class="text-[10px] font-bold px-3 py-1 rounded-md ' + followBtnClass + '">' +
+                            followBtnText +
+                        '</button>' +
+                    '</div>';
+                }).join('');
+            } else {
+                otherAccountsHtml = '<p class="text-xs text-gray-500 text-center py-4">Belum ada pengguna terdaftar lain yang cocok.</p>';
+            }
 
             return `
                 <div class="flex-1 p-4 md:p-8 overflow-y-auto max-h-screen pb-20 md:pb-8 flex justify-center bg-black">
@@ -1378,31 +1405,7 @@
                             </div>
                             
                             <div class="flex flex-col gap-3">
-                                ${otherAccounts.length > 0 ? otherAccounts.map(acc => {
-                                    const friendOnline = isUserOnline(acc);
-                                    return `
-                                        <div class="flex items-center justify-between bg-black/30 p-2.5 rounded-xl border border-igBorder/40">
-                                            <div class="flex items-center gap-2 cursor-pointer" onclick="viewUserProfil('${acc.id}')">
-                                                <div class="relative">
-                                                    <img src="${acc.avatar}" class="w-8 h-8 rounded-full bg-igGray">
-                                                    <span class="absolute bottom-0 right-0 w-2 h-2 ${friendOnline ? 'bg-green-500' : 'bg-gray-600'} rounded-full border border-black"></span>
-                                                </div>
-                                                <div class="text-left min-w-0">
-                                                    <div class="flex items-center gap-1">
-                                                        <p class="font-bold text-xs text-white truncate hover:underline">@${acc.username}</p>
-                                                        ${friendOnline ? '<span class="w-1.5 h-1.5 bg-green-500 rounded-full"></span>' : ''}
-                                                    </div>
-                                                    <p class="text-[9px] text-gray-500 truncate">${acc.fullName}</p>
-                                                </div>
-                                            </div>
-                                            <button onclick="toggleFollowUser('${acc.id}')" class="text-[10px] font-bold px-3 py-1 rounded-md ${isFollowingTarget(currentUser.id, acc.id) ? 'bg-igBorder text-gray-400' : 'bg-igBlue text-white'}">
-                                                ${isFollowingTarget(currentUser.id, acc.id) ? 'Batal Ikut' : 'Ikuti'}
-                                            </button>
-                                        </div>
-                                    `;
-                                }).join('') : `
-                                    <p class="text-xs text-gray-500 text-center py-4">Belum ada pengguna terdaftar lain yang cocok.</p>
-                                `}
+                                ${otherAccountsHtml}
                             </div>
                         </div>
                     </div>
@@ -1410,9 +1413,7 @@
             `;
         }
 
-
         // --- MODAL & POPUP DIALOG UTILITY ---
-
         window.showCustomToast = function(message) {
             const oldToast = document.getElementById('custom-toast');
             if (oldToast) oldToast.remove();
@@ -1518,86 +1519,36 @@
             `;
         }
 
-
-        // --- SCREEN LAYAR MASUK / DAFTAR ---
-
+        // --- SCREEN LAYAR MASUK (HANYA LOGIN, DAFTAR DIHAPUS) ---
         function renderAuthScreen() {
-            if (authMode === 'login') {
-                return `
-                    <div class="flex-1 flex flex-col items-center justify-center p-6 h-screen w-full bg-black">
-                        <div class="max-w-sm w-full bg-igGray border border-igBorder rounded-2xl p-8 shadow-2xl flex flex-col items-center text-center">
-                            <i class="fa-solid fa-calendar-heart text-5xl text-igBlue mb-4"></i>
-                            <h1 class="font-bold text-2xl text-white mb-1">PlengerGram</h1>
-                            <p class="text-xs text-gray-500 mb-6">Kalender Plenger & Timeline Hidup Anda</p>
+            return `
+                <div class="flex-1 flex flex-col items-center justify-center p-6 h-screen w-full bg-black">
+                    <div class="max-w-sm w-full bg-igGray border border-igBorder rounded-2xl p-8 shadow-2xl flex flex-col items-center text-center">
+                        <i class="fa-solid fa-calendar-heart text-5xl text-igBlue mb-4"></i>
+                        <h1 class="font-bold text-2xl text-white mb-1">PlengerGram</h1>
+                        <p class="text-xs text-gray-500 mb-6">Kalender Plenger & Timeline Hidup Premium</p>
 
-                            <form onsubmit="handleLogin(event)" class="w-full flex flex-col gap-4 text-left">
-                                <div>
-                                    <label class="block text-[11px] text-gray-400 mb-1 font-semibold">Nama Pengguna (Username)</label>
-                                    <input id="login-username" type="text" placeholder="Masukkan username" required class="w-full bg-black border border-igBorder rounded px-3 py-2 text-xs text-white outline-none focus:border-gray-500">
-                                </div>
-                                <div>
-                                    <label class="block text-[11px] text-gray-400 mb-1 font-semibold">Kata Sandi (Password)</label>
-                                    <input id="login-password" type="password" placeholder="Masukkan password" required class="w-full bg-black border border-igBorder rounded px-3 py-2 text-xs text-white outline-none focus:border-gray-500">
-                                </div>
-                                <button type="submit" class="w-full bg-igBlue hover:bg-blue-600 text-white font-bold py-2.5 rounded-lg text-xs transition mt-2">Masuk Akun</button>
-                            </form>
-
-                            <div class="w-full border-t border-igBorder my-6 relative">
-                                <span class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-igGray px-3 text-[10px] text-gray-500 font-bold uppercase tracking-wider">ATAU</span>
+                        <form onsubmit="handleLogin(event)" class="w-full flex flex-col gap-4 text-left">
+                            <div>
+                                <label class="block text-[11px] text-gray-400 mb-1 font-semibold">Nama Pengguna (Username)</label>
+                                <input id="login-username" type="text" placeholder="Masukkan username" required class="w-full bg-black border border-igBorder rounded px-3 py-2 text-xs text-white outline-none focus:border-gray-500">
                             </div>
-
-                            <p class="text-xs text-gray-400">Belum memiliki akun?</p>
-                            <button onclick="toggleAuthMode()" class="text-xs text-igBlue font-bold hover:underline mt-1">Daftar Akun Baru</button>
-                        </div>
-                    </div>
-                `;
-            } else {
-                return `
-                    <div class="flex-1 flex flex-col items-center justify-center p-6 h-screen w-full bg-black">
-                        <div class="max-w-sm w-full bg-igGray border border-igBorder rounded-2xl p-8 shadow-2xl flex flex-col items-center text-center max-h-[90vh] overflow-y-auto no-scrollbar">
-                            <i class="fa-solid fa-calendar-plus text-5xl text-igBlue mb-3"></i>
-                            <h1 class="font-bold text-xl text-white mb-1">Daftar PlengerGram</h1>
-                            <p class="text-xs text-gray-500 mb-5">Simpan Plengeran Disini (Aman & Stabil)</p>
-
-                            <form onsubmit="handleSignUp(event)" class="w-full flex flex-col gap-3 text-left">
-                                <div>
-                                    <label class="block text-[10px] text-gray-400 mb-1 font-semibold">Nama Pengguna (Username)*</label>
-                                    <input id="signup-username" type="text" placeholder="Username" required class="w-full bg-black border border-igBorder rounded px-3 py-2 text-xs text-white outline-none focus:border-gray-500">
-                                </div>
-                                <div>
-                                    <label class="block text-[10px] text-gray-400 mb-1 font-semibold">Nama Lengkap*</label>
-                                    <input id="signup-fullname" type="text" placeholder="Nama Plenger" required class="w-full bg-black border border-igBorder rounded px-3 py-2 text-xs text-white outline-none focus:border-gray-500">
-                                </div>
-                                <div>
-                                    <label class="block text-[10px] text-gray-400 mb-1 font-semibold">Kata Sandi (Password)*</label>
-                                    <input id="signup-password" type="password" placeholder="Buat Password" required class="w-full bg-black border border-igBorder rounded px-3 py-2 text-xs text-white outline-none focus:border-gray-500">
-                                </div>
-                                <div>
-                                    <label class="block text-[10px] text-gray-400 mb-1 font-semibold">Tulis Bio Singkat</label>
-                                    <textarea id="signup-bio" rows="2" placeholder="Tulis bio" class="w-full bg-black border border-igBorder rounded px-3 py-2 text-xs text-white outline-none focus:border-gray-500 resize-none"></textarea>
-                                </div>
-                                <button type="submit" class="w-full bg-igBlue hover:bg-blue-600 text-white font-bold py-2.5 rounded-lg text-xs transition mt-2">Buat & Masuk Akun</button>
-                            </form>
-
-                            <div class="w-full border-t border-igBorder my-5 relative">
-                                <span class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-igGray px-3 text-[10px] text-gray-500 font-bold uppercase tracking-wider">ATAU</span>
+                            <div>
+                                <label class="block text-[11px] text-gray-400 mb-1 font-semibold">Kata Sandi (Password)</label>
+                                <input id="login-password" type="password" placeholder="Masukkan password" required class="w-full bg-black border border-igBorder rounded px-3 py-2 text-xs text-white outline-none focus:border-gray-500">
                             </div>
-
-                            <p class="text-xs text-gray-400">Sudah memiliki akun?</p>
-                            <button onclick="toggleAuthMode()" class="text-xs text-igBlue font-bold hover:underline mt-1">Silakan Masuk</button>
-                        </div>
+                            <button type="submit" class="w-full bg-igBlue hover:bg-blue-600 text-white font-bold py-2.5 rounded-lg text-xs transition mt-2">Masuk Akun</button>
+                        </form>
                     </div>
-                `;
-            }
+                </div>
+            `;
         }
 
-
         // --- COORDINATOR UTAMA RENDER APLIKASI ---
-
         function renderApp() {
             const appDiv = document.getElementById('app');
 
-            if (!isUserLoggedIn) {
+            if (!currentUserId) {
                 appDiv.innerHTML = renderAuthScreen();
                 return;
             }
@@ -1633,16 +1584,18 @@
 
         // --- INISIALISASI UTAMA & SINKRONISASI CLOUD ---
         (async function init() {
-            // Setup data lokal terlebih dahulu agar app langsung bisa dibuka tanpa loading macet
+            // Setup default data lokal terlebih dahulu agar app instan responsif
             if (!useCloud) {
-                accounts = JSON.parse(localStorage.getItem('pg_accounts')) || [];
+                accounts = JSON.parse(localStorage.getItem('pg_accounts'));
+                if (!accounts || accounts.length === 0) {
+                    accounts = [...DEFAULT_ACCOUNTS];
+                }
                 memories = JSON.parse(localStorage.getItem('pg_memories')) || [];
                 chats = JSON.parse(localStorage.getItem('pg_chats')) || {};
                 
                 const loggedInId = localStorage.getItem('pg_logged_in_id');
                 if (loggedInId && accounts.some(acc => acc.id === loggedInId)) {
                     currentUserId = loggedInId;
-                    isUserLoggedIn = true;
                     startTrackingActivity();
                 }
             }
@@ -1651,11 +1604,14 @@
             renderApp();
             
             if (useCloud) {
-                // Jalankan autentikasi Firebase terlebih dahulu jika Cloud aktif (Rule 3)
+                // Jalankan autentikasi Firebase terlebih dahulu (Rule 3)
                 await authenticateUser();
                 
-                onAuthStateChanged(auth, (user) => {
+                onAuthStateChanged(auth, async (user) => {
                     if (user) {
+                        // Sediakan akun default developer & kii_ di cloud jika belum terdaftar
+                        await ensureDefaultAccountsInCloud();
+                        // Jalankan sinkronisasi real-time
                         setupDataSync(user);
                     } else {
                         renderApp();
