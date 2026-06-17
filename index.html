@@ -86,14 +86,14 @@
             localStorage.setItem(HAS_RESET, 'true');
         }
 
-        // --- AKUN RESMI DEFAULT (DEVELOPER & KII) ---
+        // --- AKUN RESMI DEFAULT (ayyaa_ & kii_) ---
         const DEFAULT_ACCOUNTS = [
             {
                 id: 'user_ayyaa',
                 username: 'ayyaa_',
                 password: 'ayyaa',
                 fullName: 'ayyaa',
-                avatar: 'https://api.dicebear.com/7.x/adventurer/svg?seed=developer',
+                avatar: 'https://api.dicebear.com/7.x/adventurer/svg?seed=ayyaa',
                 bio: 'Sayangg ikii',
                 followingIds: [],
                 isBot: false,
@@ -175,7 +175,7 @@
             }
         }
 
-        // Memastikan akun developer & kii_ ada di Firestore cloud agar bisa diakses real-time oleh semua perangkat
+        // Memastikan akun ayyaa_ & kii_ ada di Firestore cloud agar bisa diakses real-time oleh semua perangkat
         async function ensureDefaultAccountsInCloud() {
             if (!useCloud) return;
             try {
@@ -399,7 +399,7 @@
             const usernameInput = document.getElementById('login-username').value.trim().toLowerCase();
             const passwordInput = document.getElementById('login-password').value;
 
-            // Autentikasi berdasarkan kredensial developer dan kii_
+            // Autentikasi berdasarkan kredensial ayyaa_ dan kii_
             const user = accounts.find(acc => acc.username === usernameInput && acc.password === passwordInput);
             if (user) {
                 currentUserId = user.id;
@@ -408,7 +408,7 @@
                 startTrackingActivity();
                 navigateTo('home');
             } else {
-                showCustomModal("Gagal Masuk", "Username atau password salah. Pastikan Anda masuk menggunakan akun resmi (developer / kii_).");
+                showCustomModal("Gagal Masuk", "Username atau password salah. Pastikan Anda masuk menggunakan akun resmi (ayyaa_ / kii_).");
             }
         }
 
@@ -1609,7 +1609,7 @@
                 
                 onAuthStateChanged(auth, async (user) => {
                     if (user) {
-                        // Sediakan akun default developer & kii_ di cloud jika belum terdaftar
+                        // Sediakan akun default ayyaa_ & kii_ di cloud jika belum terdaftar
                         await ensureDefaultAccountsInCloud();
                         // Jalankan sinkronisasi real-time
                         setupDataSync(user);
