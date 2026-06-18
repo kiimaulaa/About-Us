@@ -47,13 +47,22 @@
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
+        /* Animasi getar untuk input password salah */
+        .shake {
+            animation: shake 0.4s ease-in-out;
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-6px); }
+            40%, 80% { transform: translateX(6px); }
+        }
     </style>
 </head>
-<body class="min-h-screen flex flex-col justify-between overflow-x-hidden selection:bg-[#e79e8c] selection:text-white">
+<body class="min-h-screen flex flex-col justify-between overflow-x-hidden selection:bg-[#e79e8c] selection:text-white pb-24">
 
     <!-- ================= PASWORD GATE / LANDING ================= -->
     <div id="password-gate" class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-[#f7f3ed] px-6">
-        <div class="max-w-md w-full bg-[#fcfaf7] border border-[#eaddd0] rounded-3xl p-8 shadow-sm text-center space-y-8 fade-in">
+        <div id="password-card" class="max-w-md w-full bg-[#fcfaf7] border border-[#eaddd0] rounded-3xl p-8 shadow-sm text-center space-y-8 fade-in">
             <!-- Dekorasi Notebook Ring di bagian atas gate -->
             <div class="flex justify-center space-x-2 -mt-4 mb-2">
                 <span class="w-3 h-3 rounded-full bg-[#cbd5e1] inline-block shadow-inner"></span>
@@ -85,27 +94,31 @@
     <!-- ================= MAIN WEBSITE CONTENT (HIDDEN UNTIL LOGIN) ================= -->
     <div id="main-content" class="hidden min-h-screen flex flex-col">
         
-        <!-- HEADER / NAVIGATION -->
+        <!-- HEADER / NAVIGATION (INSTAGRAM STYLE TOP BAR) -->
         <header class="sticky top-0 z-40 bg-[#f7f3ed]/90 backdrop-blur-md border-b border-[#ebdcd0]">
             <div class="max-w-4xl mx-auto px-6 py-4 flex items-center justify-between">
                 <div class="flex items-center space-x-2">
-                    <span class="text-2xl font-serif-aesthetic font-semibold text-[#bd7a6b] tracking-wider">ayyaa & ikii</span>
+                    <span class="text-2xl font-serif-aesthetic font-semibold text-[#bd7a6b] tracking-wider cursor-pointer" onclick="switchTab('home')">ayyaa & ikii</span>
                     <span class="text-xs px-2 py-0.5 rounded-full bg-[#f1e4d8] text-[#8e766e] font-medium">journal</span>
                 </div>
-                <nav class="flex items-center space-x-6 text-sm font-medium text-[#7d6560]">
-                    <button onclick="scrollToSection('home-sec')" class="hover:text-[#bd7a6b] transition-colors">Beranda</button>
-                    <button onclick="scrollToSection('playlist-sec')" class="hover:text-[#bd7a6b] transition-colors">Lagu</button>
-                    <button onclick="scrollToSection('gallery-sec')" class="hover:text-[#bd7a6b] transition-colors">Galeri</button>
-                    <button onclick="scrollToSection('chat-sec')" class="hover:text-[#bd7a6b] transition-colors flex items-center gap-1">Pesan Kita <span class="w-2 h-2 rounded-full bg-red-400"></span></button>
-                </nav>
+                <!-- Instagram Top Icons -->
+                <div class="flex items-center space-x-5 text-[#8e766e]">
+                    <button onclick="switchTab('profile')" class="hover:text-[#bd7a6b] transition-colors relative" title="Momen Spesial">
+                        <i data-lucide="heart" class="w-6 h-6"></i>
+                        <span class="absolute top-0 right-0 w-2 h-2 rounded-full bg-red-400"></span>
+                    </button>
+                    <button onclick="switchTab('chat')" class="hover:text-[#bd7a6b] transition-colors relative" title="Pesan Cinta">
+                        <i data-lucide="message-circle" class="w-6 h-6"></i>
+                    </button>
+                </div>
             </div>
         </header>
 
         <!-- CONTAINER JURNAL -->
-        <main class="flex-grow max-w-4xl w-full mx-auto px-4 sm:px-6 py-8 space-y-16">
+        <main class="flex-grow max-w-4xl w-full mx-auto px-4 sm:px-6 py-8">
 
             <!-- ================= HOME SECTION (Notebook Style) ================= -->
-            <section id="home-sec" class="fade-in">
+            <section id="home-sec" class="fade-in space-y-6">
                 <!-- Outer Binder Page Container -->
                 <div class="bg-[#fcfaf7] border border-[#eaddd0] rounded-3xl p-6 sm:p-10 shadow-sm relative overflow-hidden">
                     
@@ -149,7 +162,7 @@
                                 Haii kamu! <strong class="text-[#bd7a6b] font-semibold">SELAMAT HARI INI YA!</strong> Makasih banyak udah selalu jadi satu-satunya cewek/cowok yang bikin aku selalu ngerasa dihargain, dingertiin, dicintain, dan disayangin yang ampe sesayang itu.. 🧸❤️
                             </p>
                             <p class="indent-6">
-                                Aku cuma pengen bilang trimakasih banyak-banyak karna kamu udah hadir dalam hidupku dan bikin sweet seventeenku hingga sedewasa ini jadi seindah itu. Makasih udah jadi 'tempat' yang bisa nenangin aku, jadi tempat ternyaman aku yang selalu ngertiin aku, makasih udah selalu sabar ama sikap nggajelas aku and dengerin semua ceritaku yang aneh-aneh itu, and always support aku buat semua ini..
+                                Aku cuma pengen bilang trimakasih banyak-banyak karna kamu udah hadir dalam hidupku and bikin sweet seventeenku hingga sedewasa ini jadi seindah itu. Makasih udah jadi 'tempat' yang bisa nenangin aku, jadi tempat ternyaman aku yang selalu ngertiin aku, makasih udah selalu sabar ama sikap nggajelas aku and dengerin semua ceritaku yang aneh-aneh itu, and always support aku buat semua ini..
                             </p>
                             <p class="indent-6 font-handwritten text-2xl text-[#bd7a6b] pt-2">
                                 Apalagi yang udah ngertiin aku tentang segala hal.. I Love You Forever! 🤍✨
@@ -167,7 +180,7 @@
             </section>
 
             <!-- ================= PLAYLIST SECTION ================= -->
-            <section id="playlist-sec" class="space-y-6">
+            <section id="playlist-sec" class="hidden space-y-6 fade-in">
                 <div class="text-center space-y-2">
                     <h2 class="text-2xl font-serif-aesthetic font-semibold text-[#4a3e3d]">Melodi Kenangan Kita</h2>
                     <p class="text-xs text-gray-500 max-w-sm mx-auto">Setiap nada punya cerita tentang kita. Ketuk lagu untuk membaca memoarnya.</p>
@@ -209,7 +222,7 @@
                     </div>
 
                     <!-- Lagu 3 -->
-                    <div onclick="openMusicPopup('Kita Bikin Romantis', '14 Februari 2025', 'Nggak perlu hal mewah atau liburan mahal. Sederhana aja, kayak denger lagu ini di motor pas hujan rintik-rintik, itu udah romantis banget buat aku.', 'rainy_day')" 
+                    <div onclick="openMusicPopup('Kita Bikin Romantis', '14 Februari 2025', 'Nggak perlu hal mewah atau liburan mahal. Sederhana aja, kayak denger lagu ini di motor pas hujan rintik-tintik, itu udah romantis banget buat aku.', 'rainy_day')" 
                         class="flex items-center justify-between p-4 bg-[#fcfaf7] hover:bg-[#fbf4ed] border border-[#eaddd0] rounded-2xl cursor-pointer transition-all group shadow-sm hover:shadow">
                         <div class="flex items-center space-x-4">
                             <div class="w-12 h-12 rounded-xl bg-[#e79e8c]/20 flex items-center justify-center text-[#bd7a6b] group-hover:scale-110 transition-transform">
@@ -217,7 +230,7 @@
                             </div>
                             <div>
                                 <h3 class="font-medium text-[#4a3e3d] text-sm sm:text-base group-hover:text-[#bd7a6b] transition-colors">Kita Bikin Romantis</h3>
-                                <p class="text-xs text-gray-400">MALIQ & D\'Essentials</p>
+                                <p class="text-xs text-gray-400">MALIQ & D'Essentials</p>
                             </div>
                         </div>
                         <span class="text-xs text-[#bd7a6b] font-medium flex items-center gap-1 bg-[#f7f3ed] px-3 py-1.5 rounded-lg border border-[#eaddd0]">
@@ -245,7 +258,7 @@
             </section>
 
             <!-- ================= GALLERY SECTION ================= -->
-            <section id="gallery-sec" class="space-y-6">
+            <section id="gallery-sec" class="hidden space-y-6 fade-in">
                 <div class="text-center space-y-2">
                     <h2 class="text-2xl font-serif-aesthetic font-semibold text-[#4a3e3d]">Galeri Memori Kita</h2>
                     <p class="text-xs text-gray-500 max-w-sm mx-auto">Potongan cerita manis yang kita abadikan bersama sepanjang waktu.</p>
@@ -308,8 +321,8 @@
                 </div>
             </section>
 
-            <!-- ================= MESSAGES CHAT SECTION (No Login Needed) ================= -->
-            <section id="chat-sec" class="space-y-6">
+            <!-- ================= MESSAGES CHAT SECTION ================= -->
+            <section id="chat-sec" class="hidden space-y-6 fade-in">
                 <div class="text-center space-y-2">
                     <h2 class="text-2xl font-serif-aesthetic font-semibold text-[#4a3e3d]">Papan Pesan Cinta</h2>
                     <p class="text-xs text-gray-500 max-w-sm mx-auto">Tinggalkan surat kecil untuk satu sama lain di sini. Tidak perlu login akun.</p>
@@ -370,6 +383,63 @@
                     </div>
                 </div>
             </section>
+
+            <!-- ================= NEW PROFILE SECTION (INSTAGRAM STYLE) ================= -->
+            <section id="profile-sec" class="hidden space-y-6 fade-in">
+                <!-- Profile Header Card -->
+                <div class="bg-[#fcfaf7] border border-[#eaddd0] rounded-3xl p-6 sm:p-8 shadow-sm space-y-6">
+                    <div class="flex flex-col sm:flex-row items-center gap-6 pb-6 border-b border-[#f3eae1]">
+                        <!-- Instagram Avatar Style -->
+                        <div class="relative flex-shrink-0">
+                            <!-- Dual Overlapping Circles for Couple Profile -->
+                            <div class="w-24 h-24 rounded-full bg-gradient-to-tr from-amber-400 to-[#bd7a6b] p-1 shadow-md">
+                                <div class="w-full h-full rounded-full bg-white flex items-center justify-center overflow-hidden relative">
+                                    <span class="font-serif-aesthetic text-xl font-bold text-[#bd7a6b]">A & I</span>
+                                </div>
+                            </div>
+                            <div class="absolute -bottom-1 -right-1 bg-red-400 text-white rounded-full p-1.5 border-2 border-white">
+                                <i data-lucide="heart" class="w-3.5 h-3.5 fill-current"></i>
+                            </div>
+                        </div>
+
+                        <!-- Stats & Bio -->
+                        <div class="flex-grow text-center sm:text-left space-y-3">
+                            <div class="flex flex-col sm:flex-row sm:items-center gap-2">
+                                <h2 class="text-xl font-bold text-[#4a3e3d]">ayyaa_ikii</h2>
+                                <span class="inline-flex items-center gap-1 bg-[#e79e8c]/20 text-[#bd7a6b] px-2.5 py-0.5 rounded-full text-xs font-semibold">
+                                    Official Couple <i data-lucide="badge-check" class="w-3.5 h-3.5 fill-current"></i>
+                                </span>
+                            </div>
+
+                            <!-- Followers / Following Stats -->
+                            <div class="flex justify-center sm:justify-start gap-6 text-sm">
+                                <div><strong class="text-[#4a3e3d]">6</strong> Kiriman</div>
+                                <div><strong class="text-[#4a3e3d]">1</strong> Pengikut</div>
+                                <div><strong class="text-[#4a3e3d]">1</strong> Mengikuti</div>
+                            </div>
+
+                            <!-- Instagram Bio Layout -->
+                            <div class="text-sm space-y-1 text-gray-600">
+                                <p class="font-semibold text-[#4a3e3d]">ayyaa & ikii</p>
+                                <p class="text-xs italic text-[#bd7a6b]">"Tempat ternyaman untuk pulang di setiap harinya."</p>
+                                <p class="flex items-center justify-center sm:justify-start gap-1 text-xs">
+                                    <i data-lucide="calendar" class="w-3.5 h-3.5"></i> Jadian sejak: <span class="font-medium">12 September 2008</span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Relationship Tracker Box -->
+                    <div class="bg-[#f7ebe0]/50 rounded-2xl p-4 text-center border border-[#ebdcd0]">
+                        <p class="text-xs uppercase tracking-wider text-gray-500 font-medium">Lama Waktu Bersama</p>
+                        <h3 id="days-counter" class="text-2xl font-serif-aesthetic font-semibold text-[#bd7a6b] mt-1">
+                            Menghitung waktu...
+                        </h3>
+                        <p class="text-[10px] text-gray-400 mt-1">Setiap detik bersamamu adalah anugerah terindah 💖</p>
+                    </div>
+                </div>
+            </section>
+
         </main>
 
         <!-- ================= PLAYLIST DETAIL POPUP (MODAL) ================= -->
@@ -415,8 +485,8 @@
             </div>
         </div>
 
-        <!-- ================= STICKY AUDIO PLAYER (Bottom Right - Screen Match) ================= -->
-        <div class="fixed bottom-4 right-4 z-40 bg-[#fbf9f6] border border-[#eaddd0] rounded-2xl p-3 shadow-md max-w-xs flex items-center space-x-3.5 fade-in">
+        <!-- ================= STICKY AUDIO PLAYER (Moved slightly up to prevent overlapping) ================= -->
+        <div class="fixed bottom-24 right-4 z-40 bg-[#fbf9f6] border border-[#eaddd0] rounded-2xl p-3 shadow-md max-w-xs flex items-center space-x-3.5 fade-in">
             <div class="relative flex-shrink-0">
                 <!-- Rotating Vinyl Record Effect -->
                 <div class="w-10 h-10 rounded-full bg-[#27272a] flex items-center justify-center animate-spin" style="animation-duration: 8s;">
@@ -435,8 +505,38 @@
             </button>
         </div>
 
+        <!-- ================= INSTAGRAM-STYLE FIXED BOTTOM NAVIGATION ================= -->
+        <div class="fixed bottom-0 left-0 right-0 bg-[#fcfaf7] border-t border-[#ebdcd0] z-50 py-3.5 px-6 flex justify-around items-center md:max-w-4xl md:mx-auto md:rounded-t-3xl md:border-x shadow-lg">
+            <!-- Home Tab Button -->
+            <button id="nav-home" onclick="switchTab('home')" class="flex flex-col items-center justify-center text-[#bd7a6b] hover:text-[#bd7a6b] transition-all transform hover:scale-105" title="Beranda">
+                <i data-lucide="home" class="w-6 h-6"></i>
+            </button>
+            
+            <!-- Search Tab Button (Lagu - Ganti dengan Icon Music) -->
+            <button id="nav-search" onclick="switchTab('search')" class="flex flex-col items-center justify-center text-[#8e766e] hover:text-[#bd7a6b] transition-all transform hover:scale-105" title="Melodi">
+                <i data-lucide="music" class="w-6 h-6"></i>
+            </button>
+            
+            <!-- Create Post Tab Button (Galeri - Ganti dengan Icon Image/Gallery) -->
+            <button id="nav-plus" onclick="switchTab('plus')" class="flex flex-col items-center justify-center text-[#8e766e] hover:text-[#bd7a6b] transition-all transform hover:scale-105" title="Galeri">
+                <i data-lucide="image" class="w-6 h-6"></i>
+            </button>
+            
+            <!-- Chat Tab Button (Pesan Kita) -->
+            <button id="nav-chat" onclick="switchTab('chat')" class="flex flex-col items-center justify-center text-[#8e766e] hover:text-[#bd7a6b] transition-all transform hover:scale-105" title="Pesan Cinta">
+                <i data-lucide="message-circle" class="w-6 h-6"></i>
+            </button>
+
+            <!-- Profile Tab Button (Insta Profile Page) -->
+            <button id="nav-profile" onclick="switchTab('profile')" class="flex flex-col items-center justify-center text-[#8e766e] hover:text-[#bd7a6b] transition-all transform hover:scale-105" title="Profil Kita">
+                <div class="w-6 h-6 rounded-full border border-current flex items-center justify-center overflow-hidden">
+                    <span class="text-[9px] font-bold font-serif-aesthetic">AI</span>
+                </div>
+            </button>
+        </div>
+
         <!-- FOOTER -->
-        <footer class="border-t border-[#ebdcd0] bg-[#fcfaf7] mt-16 py-8">
+        <footer class="border-t border-[#ebdcd0] bg-[#fcfaf7] mt-8 py-8">
             <div class="max-w-4xl mx-auto px-6 text-center space-y-3">
                 <p class="text-sm font-serif-aesthetic text-[#bd7a6b] italic">"Daripada menanti esok, mari kita rayakan hari ini bersama."</p>
                 <p class="text-xs text-gray-400">© 2026 ayyaa & ikii. All Rights Reserved. Made for each other.</p>
@@ -453,11 +553,25 @@
         // Variabel Pengirim Pesan Default
         let currentSender = 'ayyaa';
 
+        // Helper untuk mencegah HTML break / XSS saat ketik pesan di chat
+        function escapeHTML(str) {
+            return str.replace(/[&<>'"]/g, 
+                tag => ({
+                    '&': '&amp;',
+                    '<': '&lt;',
+                    '>': '&gt;',
+                    "'": '&#39;',
+                    '"': '&quot;'
+                }[tag] || tag)
+            );
+        }
+
         // Check Password Gate
         function checkPassword() {
             const passwordInput = document.getElementById('password-input').value;
             const errorText = document.getElementById('password-error');
             const passwordGate = document.getElementById('password-gate');
+            const passwordCard = document.getElementById('password-card');
             const mainContent = document.getElementById('main-content');
 
             if (passwordInput === '092008') {
@@ -467,15 +581,23 @@
                 setTimeout(() => {
                     passwordGate.classList.add('hidden');
                     mainContent.classList.remove('hidden');
+                    switchTab('home'); // Tampilkan halaman beranda pertama kali
                     loadMessagesFromStorage(); // Muat pesan dari local storage jika ada
+                    
+                    // Mulai counter hari jadian secara real-time setiap detik
+                    setInterval(updateRelationshipCounter, 1000);
+                    updateRelationshipCounter();
                 }, 500);
             } else {
                 errorText.classList.remove('hidden');
-                // Beri efek getar sedikit pada input
+                // Beri efek getar sedikit pada card input dan warna border merah tegas
+                passwordCard.classList.add('shake', 'border-red-400');
                 const inputElement = document.getElementById('password-input');
-                inputElement.classList.add('border-red-400');
+                inputElement.classList.add('border-red-400', 'ring-2', 'ring-red-300');
+                
                 setTimeout(() => {
-                    inputElement.classList.remove('border-red-400');
+                    passwordCard.classList.remove('shake', 'border-red-400');
+                    inputElement.classList.remove('border-red-400', 'ring-2', 'ring-red-300');
                 }, 1000);
             }
         }
@@ -487,11 +609,69 @@
             }
         });
 
-        // Scroll Halus antar bagian website
+        // Tab Switcher Logic (Instagram Style)
+        function switchTab(tabName) {
+            // Sembunyikan semua section
+            document.getElementById('home-sec').classList.add('hidden');
+            document.getElementById('playlist-sec').classList.add('hidden');
+            document.getElementById('gallery-sec').classList.add('hidden');
+            document.getElementById('chat-sec').classList.add('hidden');
+            document.getElementById('profile-sec').classList.add('hidden');
+
+            // Tampilkan section yang dipilih
+            if (tabName === 'home') {
+                document.getElementById('home-sec').classList.remove('hidden');
+            } else if (tabName === 'search') {
+                document.getElementById('playlist-sec').classList.remove('hidden');
+            } else if (tabName === 'plus') {
+                document.getElementById('gallery-sec').classList.remove('hidden');
+            } else if (tabName === 'chat') {
+                document.getElementById('chat-sec').classList.remove('hidden');
+            } else if (tabName === 'profile') {
+                document.getElementById('profile-sec').classList.remove('hidden');
+            }
+
+            // Ubah gaya navigasi tombol aktif
+            const tabs = ['home', 'search', 'plus', 'chat', 'profile'];
+            tabs.forEach(t => {
+                const btn = document.getElementById(`nav-${t}`);
+                if (t === tabName) {
+                    btn.classList.add('text-[#bd7a6b]', 'scale-110');
+                    btn.classList.remove('text-[#8e766e]');
+                } else {
+                    btn.classList.remove('text-[#bd7a6b]', 'scale-110');
+                    btn.classList.add('text-[#8e766e]');
+                }
+            });
+
+            // Re-render Lucide icons
+            lucide.createIcons();
+            
+            // Scroll otomatis ke atas agar tidak terpotong saat pindah tab
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Map smooth scroll ke tab switcher agar tombol orisinal tetap berfungsi
         function scrollToSection(sectionId) {
-            const section = document.getElementById(sectionId);
-            if (section) {
-                section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            if (sectionId === 'home-sec') switchTab('home');
+            else if (sectionId === 'playlist-sec') switchTab('search');
+            else if (sectionId === 'gallery-sec') switchTab('plus');
+            else if (sectionId === 'chat-sec') switchTab('chat');
+        }
+
+        // Hitung waktu jadian otomatis sejak 12 September 2008 (092008) dengan akurasi detik (Live Ticking)
+        function updateRelationshipCounter() {
+            const startDate = new Date('2008-09-12T00:00:00');
+            const now = new Date();
+            const diffTime = Math.abs(now - startDate);
+            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+            const diffHours = Math.floor((diffTime % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const diffMinutes = Math.floor((diffTime % (1000 * 60 * 60)) / (1000 * 60));
+            const diffSeconds = Math.floor((diffTime % (1000 * 60)) / 1000);
+            
+            const counterElement = document.getElementById('days-counter');
+            if (counterElement) {
+                counterElement.innerHTML = `${diffDays.toLocaleString('id-ID')} Hari ${diffHours} Jam ${diffMinutes} Menit ${diffSeconds} Detik`;
             }
         }
 
@@ -577,9 +757,12 @@
             const now = new Date();
             const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
+            // Enkripsi string teks agar layout HTML aman
+            const safeText = escapeHTML(messageText);
+
             const messageObj = {
                 sender: currentSender,
-                text: messageText,
+                text: safeText,
                 time: timeString
             };
 
