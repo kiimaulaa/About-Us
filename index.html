@@ -175,12 +175,22 @@
                             </div>
                         </div>
 
+                        <!-- Love Counter Widget -->
+                        <div class="p-5 bg-[#fbf9f6] border border-[#eaddd0] rounded-2xl text-center space-y-2 max-w-md mx-auto shadow-sm">
+                            <p class="text-xs uppercase tracking-wider text-[#bd7a6b] font-semibold flex items-center justify-center gap-1.5">
+                                <i data-lucide="heart" class="w-4 h-4 fill-[#bd7a6b]"></i> Perjalanan Bersama ❤️
+                            </p>
+                            <h3 id="love-journey-counter" class="text-base sm:text-lg font-serif-aesthetic font-semibold text-[#4a3e3d]">
+                                Menghitung momen indah kita...
+                            </h3>
+                        </div>
+
                         <!-- Cute Note Text -->
                         <div class="space-y-4 text-sm sm:text-base leading-relaxed text-[#5c4a47] font-light">
                             <p class="indent-6">
                                 "Seperti 3726 mdpl, selalu butuh waktu yang lama untuk mendapatkan sesuatu yang indah." — 3726 MDPL
                             </p>
-                            <p class="indent-6 font-handwritten text-2xl text-[#bd7a6b] pt-2">
+                            <p class="indent-6 font-handwritten text-2xl text-[#bd7a6b] pt-2 text-center">
                                 Love You! 🤍
                             </p>
                         </div>
@@ -408,7 +418,7 @@
                     </div>
 
                     <!-- LAGU 13 -->
-                    <div onclick="openMusicPopup('One Only', 'Yogyakarta', 'cuma mau kenal kamu, deket kamu, sama kamu, selamanyaa...', 'sparkles', 'https://github.com/kiimaulaa/lagu-web/raw/refs/heads/main/Pamungkas%20-%20One%20Only%20(Lyrics%20Video)%20%5BdBFp0Ext0y8%5D.mp3', 'https://lh3.googleusercontent.com/d/1jXfUsLou2_f2ep_Zn3tvv9AHX_22MvJE">"
+                    <div onclick="openMusicPopup('One Only', 'Yogyakarta', 'cuma mau kenal kamu, deket kamu, sama kamu, selamanyaa...', 'sparkles', 'https://github.com/kiimaulaa/lagu-web/raw/refs/heads/main/Pamungkas%20-%20One%20Only%20(Lyrics%20Video)%20%5BdBFp0Ext0y8%5D.mp3', 'https://lh3.googleusercontent.com/d/1jXfUsLou2_f2ep_Zn3tvv9AHX_22MvJE')"
                         class="flex items-center justify-between p-4 bg-[#fcfaf7] hover:bg-[#fbf4ed] border border-[#eaddd0] rounded-2xl cursor-pointer transition-all group shadow-sm hover:shadow">
                         <div class="flex items-center space-x-4">
                             <div class="w-12 h-12 rounded-xl bg-[#e79e8c]/20 flex items-center justify-center text-[#bd7a6b] group-hover:scale-110 transition-transform">
@@ -923,7 +933,7 @@ service cloud.firestore {
         import { getFirestore, collection, doc, addDoc, deleteDoc, onSnapshot, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // ================= MANUAL FIREBASE CONFIGURATION FOR DEPLOYMENT =================
-        const firebaseConfig = {
+        const MANUAL_FIREBASE_CONFIG = {
           apiKey: "AIzaSyDlRPLT4wj9Z5Ty4E9zHiWM2J1XsFt5lH4",
           authDomain: "kiiayyaa.firebaseapp.com",
           projectId: "kiiayyaa",
@@ -952,7 +962,7 @@ service cloud.firestore {
             }
         }
 
-        // Pilih konfigurasi Firebase yang akan digunakan
+        // Resolusi konfigurasi Firebase yang akan digunakan tanpa error deklarasi ganda
         let firebaseConfig = null;
 
         if (typeof __firebase_config !== 'undefined' && __firebase_config) {
@@ -961,8 +971,6 @@ service cloud.firestore {
             } catch (e) {
                 console.error("Gagal melakukan inisialisasi platform Firebase: ", e);
             }
-        } else if (CUSTOM_FIREBASE_CONFIG && CUSTOM_FIREBASE_CONFIG.apiKey) {
-            firebaseConfig = CUSTOM_FIREBASE_CONFIG;
         } else {
             // Ambil dari localStorage jika pengguna telah menyimpannya via UI pengaturan langsung di peramban
             const savedConfig = localStorage.getItem('custom_firebase_config');
@@ -972,6 +980,8 @@ service cloud.firestore {
                 } catch (e) {
                     console.error("Gagal memproses config dari localStorage: ", e);
                 }
+            } else {
+                firebaseConfig = MANUAL_FIREBASE_CONFIG;
             }
         }
 
@@ -1195,10 +1205,11 @@ service cloud.firestore {
             const minutesI = Math.floor((diffIkii % (1000 * 60 * 60)) / (1000 * 60));
             const secondsI = Math.floor((diffIkii % (1000 * 60)) / 1000);
 
-            document.getElementById('ayyaa-birthday-countdown').innerHTML = 
-                `${daysA}d ${hoursA}h ${minutesA}m ${secondsA}s`;
-            document.getElementById('ikii-birthday-countdown').innerHTML = 
-                `${daysI}d ${hoursI}h ${minutesI}m ${secondsI}s`;
+            const bdayAyyaaEl = document.getElementById('ayyaa-birthday-countdown');
+            const bdayIkiiEl = document.getElementById('ikii-birthday-countdown');
+
+            if (bdayAyyaaEl) bdayAyyaaEl.innerHTML = `${daysA}d ${hoursA}h ${minutesA}m ${secondsA}s`;
+            if (bdayIkiiEl) bdayIkiiEl.innerHTML = `${daysI}d ${hoursI}h ${minutesI}m ${secondsI}s`;
         }
 
         // Love Journey Tracker (Dating anniversary live count-up)
@@ -1214,7 +1225,7 @@ service cloud.firestore {
             
             const loveCounterEl = document.getElementById('love-journey-counter');
             if (loveCounterEl) {
-                loveCounterEl.innerHTML = `${days} Hari <span class="text-xs text-gray-500 font-normal">(${hours}j ${minutes}m ${seconds}s)</span>`;
+                loveCounterEl.innerHTML = `${days} Hari <span class="text-xs text-[#8e766e] font-normal">(${hours}j ${minutes}m ${seconds}s)</span>`;
             }
         }
 
@@ -1341,6 +1352,7 @@ service cloud.firestore {
         // Render Seluruh Grid Galeri (Foto Bawaan + Kustom)
         function renderGallery(customItems = []) {
             const grid = document.getElementById('gallery-grid');
+            if (!grid) return;
             grid.innerHTML = '';
 
             // Update status Kiriman secara dinamis di halaman profil
@@ -1473,14 +1485,15 @@ service cloud.firestore {
             }
 
             modal.classList.remove('hidden');
-            modal.querySelector('.smooth-scroll-container').scrollTop = 0;
+            const scrollContainer = modal.querySelector('.smooth-scroll-container');
+            if (scrollContainer) scrollContainer.scrollTop = 0;
             lucide.createIcons();
         }
 
         // Tutup Popup Modal
         function closeMusicPopup() {
             const modal = document.getElementById('music-modal');
-            modal.classList.add('hidden');
+            if (modal) modal.classList.add('hidden');
         }
 
         // Ubah Pengirim DM
@@ -1491,11 +1504,11 @@ service cloud.firestore {
             currentSender = sender;
 
             if (sender === 'ayyaa') {
-                btnAyyaa.className = "px-4 py-1.5 rounded-lg font-medium transition-all bg-[#e79e8c] text-white shadow-sm";
-                btnIkii.className = "px-4 py-1.5 rounded-lg font-medium transition-all text-[#8e766e] hover:text-[#bd7a6b]";
+                if (btnAyyaa) btnAyyaa.className = "px-4 py-1.5 rounded-lg font-medium transition-all bg-[#e79e8c] text-white shadow-sm";
+                if (btnIkii) btnIkii.className = "px-4 py-1.5 rounded-lg font-medium transition-all text-[#8e766e] hover:text-[#bd7a6b]";
             } else {
-                btnIkii.className = "px-4 py-1.5 rounded-lg font-medium transition-all bg-[#e79e8c] text-white shadow-sm";
-                btnAyyaa.className = "px-4 py-1.5 rounded-lg font-medium transition-all text-[#8e766e] hover:text-[#bd7a6b]";
+                if (btnIkii) btnIkii.className = "px-4 py-1.5 rounded-lg font-medium transition-all bg-[#e79e8c] text-white shadow-sm";
+                if (btnAyyaa) btnAyyaa.className = "px-4 py-1.5 rounded-lg font-medium transition-all text-[#8e766e] hover:text-[#bd7a6b]";
             }
 
             // Muat ulang data realtime saat mengganti POV agar visualisasi Bubble Chat langsung ter-render dengan benar
@@ -1505,6 +1518,7 @@ service cloud.firestore {
         // Kirim Pesan Direct Message baru
         async function sendChatMessage() {
             const chatInput = document.getElementById('chat-input');
+            if (!chatInput) return;
             const messageText = chatInput.value.trim();
 
             if (messageText === '') return;
@@ -1567,21 +1581,24 @@ service cloud.firestore {
 
         // Fungsi-fungsi kontrol untuk Modal Hapus Chat
         function openClearChatModal() {
-            document.getElementById('clear-chat-modal').classList.remove('hidden');
+            const modal = document.getElementById('clear-chat-modal');
+            if (modal) modal.classList.remove('hidden');
         }
 
         function closeClearChatModal() {
-            document.getElementById('clear-chat-modal').classList.add('hidden');
+            const modal = document.getElementById('clear-chat-modal');
+            if (modal) modal.classList.add('hidden');
         }
 
         async function confirmClearChats() {
-            document.getElementById('clear-chat-modal').classList.add('hidden');
+            closeClearChatModal();
             await clearAllChats();
         }
 
         // Render Thread DM secara Dinamis sesuai Switch Pengirim
         function renderMessages(messagesList = []) {
             const thread = document.getElementById('chat-thread');
+            if (!thread) return;
             thread.innerHTML = '';
 
             messagesList.forEach(msg => {
@@ -1625,23 +1642,27 @@ service cloud.firestore {
         }
 
         // Hubungkan Chat Input ke Tombol Enter
-        document.getElementById('chat-input').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                sendChatMessage();
-            }
-        });
+        const chatInputEl = document.getElementById('chat-input');
+        if (chatInputEl) {
+            chatInputEl.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    sendChatMessage();
+                }
+            });
+        }
 
         // ================= CLOUD SYNC SETTINGS HANDLERS =================
         function openCloudConfigModal() {
             const modal = document.getElementById('cloud-config-modal');
+            if (!modal) return;
             modal.classList.remove('hidden');
 
             const savedConfigRaw = localStorage.getItem('custom_firebase_config');
             let savedConfig = null;
             if (savedConfigRaw) {
                 try { savedConfig = JSON.parse(savedConfigRaw); } catch(e) {}
-            } else if (CUSTOM_FIREBASE_CONFIG && CUSTOM_FIREBASE_CONFIG.apiKey) {
-                savedConfig = CUSTOM_FIREBASE_CONFIG;
+            } else {
+                savedConfig = MANUAL_FIREBASE_CONFIG;
             }
 
             if (savedConfig) {
@@ -1655,11 +1676,13 @@ service cloud.firestore {
         }
 
         function closeCloudConfigModal() {
-            document.getElementById('cloud-config-modal').classList.add('hidden');
+            const modal = document.getElementById('cloud-config-modal');
+            if (modal) modal.classList.add('hidden');
         }
 
         function showCloudStatus(text, isError = false) {
             const statusEl = document.getElementById('cloud-status-msg');
+            if (!statusEl) return;
             statusEl.innerText = text;
             statusEl.className = `text-xs text-center font-medium ${isError ? 'text-red-500' : 'text-green-600'}`;
             statusEl.classList.remove('hidden');
@@ -1681,7 +1704,7 @@ service cloud.firestore {
             }
 
             localStorage.setItem('custom_firebase_config', JSON.stringify(config));
-            showCloudStatus("Konfigurasi disimpan! Memuat ulang halaman..."),
+            showCloudStatus("Konfigurasi disimpan! Memuat ulang halaman...");
             setTimeout(() => {
                 window.location.reload();
             }, 1500);
@@ -1697,11 +1720,13 @@ service cloud.firestore {
 
         // Control Fungsi Debug Modal
         function openDebugModal() {
-            document.getElementById('debug-modal').classList.remove('hidden');
+            const modal = document.getElementById('debug-modal');
+            if (modal) modal.classList.remove('hidden');
         }
 
         function closeDebugModal() {
-            document.getElementById('debug-modal').classList.add('hidden');
+            const modal = document.getElementById('debug-modal');
+            if (modal) modal.classList.add('hidden');
         }
 
         // Hubungkan semua fungsi utama ke object window agar berjalan di runtime HTML Inline
