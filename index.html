@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ayyaa & ikii</title>
+    <title>About Us</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Google Fonts: Playfair Display untuk judul, Plus Jakarta Sans untuk teks membaca -->
@@ -160,6 +160,10 @@
                                 <img id="main-photo" src="https://lh3.googleusercontent.com/d/1jrcTIlvUwQPy0c1CcQQ3h8Zb_aH5BmJ9" alt="Foto Utama"
                                     onerror="this.style.display='none'; document.getElementById('main-photo-fallback').style.display='flex';" 
                                     class="w-full h-full object-cover">
+                                <div id="main-photo-fallback" class="hidden absolute inset-0 flex flex-col items-center justify-center text-center p-4 bg-[#fbf9f6]">
+                                    <i data-lucide="image" class="w-12 h-12 text-[#bd7a6b] mb-2"></i>
+                                    <span class="text-sm text-gray-400">Gagal memuat foto utama</span>
+                                </div>
                             </div>
                         </div>
 
@@ -464,7 +468,7 @@
                     </div>
 
                     <!-- LAGU 17 -->
-                    <div onclick="openMusicPopup('Taruh', 'Yogyakarta', 'Ayy, mekarlah dengan indah, meski nanti ternyata layu, lo tetap bunga. -3726 mdpl.', 'sparkles', 'https://github.com/kiimaulaa/lagu-web/raw/refs/heads/main/Nadin%20Amizah%20-%20Taruh%20(Official%20Lyric%20Video)%20%5BVrp2Be-RVVM%5D.mp3', 'https://lh3.googleusercontent.com/d/1rujLxYGPqRLlh6dPQGsZTXlwinGHJQsO')"
+                    <div onclick="openMusicPopup('Taruh', 'Yogyakarta', 'Ayy, mekarlah dengan indah, meski nanti ternyata layu, lo tetap bunga. -3726 mdpl.', 'sparkles', 'https://github.com/kiimaulaa/lagu-web/raw/refs/heads/main/Nadin%20Amiz0ah%20-%20Taruh%20(Official%20Lyric%20Video)%20%5BVrp2Be-RVVM%5D.mp3', 'https://lh3.googleusercontent.com/d/1rujLxYGPqRLlh6dPQGsZTXlwinGHJQsO')"
                         class="flex items-center justify-between p-4 bg-[#fcfaf7] hover:bg-[#fbf4ed] border border-[#eaddd0] rounded-2xl cursor-pointer transition-all group shadow-sm hover:shadow">
                         <div class="flex items-center space-x-4">
                             <div class="w-12 h-12 rounded-xl bg-[#e79e8c]/20 flex items-center justify-center text-[#bd7a6b] group-hover:scale-110 transition-transform">
@@ -498,7 +502,7 @@
                     </div>
 
                     <!-- LAGU 19 -->
-                    <div onclick="openMusicPopup('Foto Kita Blur', 'Yogyakarta', 'Diantara foto kita yang blur, semoga kamu tetep jelas buat bersinar. -kii', 'sparkles', 'https://github.com/kiimaulaa/lagu-web/raw/refs/heads/main/Sal%20Priadi%20-%20Foto%20kita%20blur%20(Official%20Lyric%20Video)%20%5BytMxh-_6EcI%5D.mp3', 'https://lh3.googleusercontent.com/d/14jkonrfeC_SGK8iNA0E75OmjjSULahlQ')"
+                    <div onclick="openMusicPopup('Foto Kita Blur', 'Yogyakarta', 'Diantara foto kita yang blur, semoga kamu tetep jelas buat bersinar. -bug', 'sparkles', 'https://github.com/kiimaulaa/lagu-web/raw/refs/heads/main/Sal%20Priadi%20-%20Foto%20kita%20blur%20(Official%20Lyric%20Video)%20%5BytMxh-_6EcI%5D.mp3', 'https://lh3.googleusercontent.com/d/14jkonrfeC_SGK8iNA0E75OmjjSULahlQ')"
                         class="flex items-center justify-between p-4 bg-[#fcfaf7] hover:bg-[#fbf4ed] border border-[#eaddd0] rounded-2xl cursor-pointer transition-all group shadow-sm hover:shadow">
                         <div class="flex items-center space-x-4">
                             <div class="w-12 h-12 rounded-xl bg-[#e79e8c]/20 flex items-center justify-center text-[#bd7a6b] group-hover:scale-110 transition-transform">
@@ -620,20 +624,23 @@
 
                             <!-- Followers / Following Stats -->
                             <div class="flex justify-center sm:justify-start gap-6 text-sm">
-                                <div><strong class="text-[#4a3e3d]">-</strong> Kiriman</div>
-                                <div><strong class="text-[#4a3e3d]">-</strong> Pengikut</div>
-                                <div><strong class="text-[#4a3e3d]">-</strong> Mengikuti</div>
+                                <div><strong class="text-[#4a3e3d]" id="total-posts-count">1</strong> Kiriman</div>
+                                <div><strong class="text-[#4a3e3d]">2</strong> Pengikut</div>
+                                <div><strong class="text-[#4a3e3d]">2</strong> Mengikuti</div>
                             </div>
 
                             <!-- Instagram Bio Layout -->
                             <div class="text-sm space-y-1 text-gray-600">
                                 <p class="font-semibold text-[#4a3e3d]">Perfect Couple</p>
                                 <p class="text-xs italic text-[#bd7a6b]">"Ada orang yang hadir sebentar lalu pergi, dan ada kamu yang datang lalu menjadi rumah."— 0 MDPL</p>
-                                <p class="flex items-center justify-center sm:justify-start gap-1 text-xs">
-                                    <i data-lucide="calendar" class="w-3.5 h-3.5"></i> Lahir ayyaa: <span class="font-medium">12 September 2008</span></p>
-                                <p class="flex items-center justify-center sm:justify-start gap-1 text-xs">
-                                    <i data-lucide="calendar" class="w-3.5 h-3.5"></i> Lahir ikii: <span class="font-medium">19 September 2008</span>
-                                </p>
+                                <div class="flex flex-col gap-0.5 pt-1">
+                                    <p class="flex items-center justify-center sm:justify-start gap-1 text-xs">
+                                        <i data-lucide="calendar" class="w-3.5 h-3.5"></i> Lahir ayyaa: <span class="font-medium">12 September 2008</span>
+                                    </p>
+                                    <p class="flex items-center justify-center sm:justify-start gap-1 text-xs">
+                                        <i data-lucide="calendar" class="w-3.5 h-3.5"></i> Lahir ikii: <span class="font-medium">19 September 2008</span>
+                                    </p>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -829,18 +836,14 @@
         import { getFirestore, collection, doc, addDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // ================= MANUAL FIREBASE CONFIGURATION FOR DEPLOYMENT =================
-        // Jika Anda meng-host di GitHub Pages, Anda bisa menempelkan data Firebase Anda di bawah ini
-        // agar website terhubung secara global, atau gunakan form pengaturan langsung dari web!
-// Your web app's Firebase configuration
-const firebaseConfig = {
-    apiKey: "AIzaSyDLRPLT4wj9Z5Ty4E9zHiWM2J1XsFt51H4",
-    authDomain: "kiiayyaa.firebaseapp.com",
-    projectId: "kiiayyaa",
-    storageBucket: "kiiayyaa. firebasestorage. app",
-    messagingSenderId: "493602497047",
-    appId: "1:493602497047:web:df1dd4f9f96f8fb8eeb252"
-};
-3;
+        const MANUAL_FIREBASE_CONFIG = {
+            apiKey: "AIzaSyDLRPLT4wj9Z5Ty4E9zHiWM2J1XsFt51H4",
+            authDomain: "kiiayyaa.firebaseapp.com",
+            projectId: "kiiayyaa",
+            storageBucket: "kiiayyaa.firebasestorage.app",
+            messagingSenderId: "493602497047",
+            appId: "1:493602497047:web:df1dd4f9f96f8fb8eeb252"
+        };
 
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'ayyaa-ikii-couplegram';
         let db = null;
@@ -848,33 +851,37 @@ const firebaseConfig = {
         let isFirebaseReady = false;
         let currentAuthUser = null;
 
-        // Pilih konfigurasi Firebase yang akan digunakan
-        let firebaseConfig = null;
+        // Pilih konfigurasi Firebase yang paling sesuai secara berjenjang
+        let activeConfig = null;
 
         if (typeof __firebase_config !== 'undefined' && __firebase_config) {
             try {
-                firebaseConfig = JSON.parse(__firebase_config);
+                activeConfig = JSON.parse(__firebase_config);
             } catch (e) {
-                console.error("Gagal melakukan inisialisasi platform Firebase: ", e);
+                console.error("Gagal memproses __firebase_config environment: ", e);
             }
-        } else if (CUSTOM_FIREBASE_CONFIG && CUSTOM_FIREBASE_CONFIG.apiKey !== "YOUR_API_KEY") {
-            firebaseConfig = CUSTOM_FIREBASE_CONFIG;
-        } else {
-            // Ambil dari localStorage jika pengguna telah menyimpannya via UI pengaturan langsung di peramban
+        }
+
+        if (!activeConfig) {
+            // Ambil dari localStorage jika disimpan via menu pengaturan sync
             const savedConfig = localStorage.getItem('custom_firebase_config');
             if (savedConfig) {
                 try {
-                    firebaseConfig = JSON.parse(savedConfig);
+                    activeConfig = JSON.parse(savedConfig);
                 } catch (e) {
                     console.error("Gagal memproses config dari localStorage: ", e);
                 }
             }
         }
 
+        if (!activeConfig && MANUAL_FIREBASE_CONFIG && MANUAL_FIREBASE_CONFIG.apiKey) {
+            activeConfig = MANUAL_FIREBASE_CONFIG;
+        }
+
         // Inisialisasi Firebase & Autentikasi segera di awal jika config tersedia
-        if (firebaseConfig) {
+        if (activeConfig && activeConfig.apiKey) {
             try {
-                const app = initializeApp(firebaseConfig);
+                const app = initializeApp(activeConfig);
                 auth = getAuth(app);
                 db = getFirestore(app);
                 isFirebaseReady = true;
@@ -893,6 +900,8 @@ const firebaseConfig = {
             } catch (e) {
                 console.error("Gagal memulai modul Firebase: ", e);
             }
+        } else {
+            console.warn("Konfigurasi Firebase tidak terdeteksi. Aplikasi berjalan dalam mode offline.");
         }
 
         async function triggerAuthSilent() {
@@ -963,9 +972,7 @@ const firebaseConfig = {
                     }
 
                     // Sinkronisasi data awal/lokal sebagai cadangan sebelum snapshot aktif
-                    if (!isFirebaseReady || !currentAuthUser) {
-                        setupDataListeners();
-                    }
+                    setupDataListeners();
                     
                     setInterval(updateBirthdayCountdowns, 1000);
                     updateBirthdayCountdowns();
@@ -1013,12 +1020,14 @@ const firebaseConfig = {
             const tabs = ['home', 'search', 'plus', 'chat', 'profile'];
             tabs.forEach(t => {
                 const btn = document.getElementById(`nav-${t}`);
-                if (t === tabName) {
-                    btn.classList.add('text-[#bd7a6b]', 'scale-110');
-                    btn.classList.remove('text-[#8e766e]');
-                } else {
-                    btn.classList.remove('text-[#bd7a6b]', 'scale-110');
-                    btn.classList.add('text-[#8e766e]');
+                if (btn) {
+                    if (t === tabName) {
+                        btn.classList.add('text-[#bd7a6b]', 'scale-110');
+                        btn.classList.remove('text-[#8e766e]');
+                    } else {
+                        btn.classList.remove('text-[#bd7a6b]', 'scale-110');
+                        btn.classList.add('text-[#8e766e]');
+                    }
                 }
             });
 
@@ -1062,10 +1071,10 @@ const firebaseConfig = {
             const minutesI = Math.floor((diffIkii % (1000 * 60 * 60)) / (1000 * 60));
             const secondsI = Math.floor((diffIkii % (1000 * 60)) / 1000);
 
-            document.getElementById('ayyaa-birthday-countdown').innerHTML = 
-                `${daysA}d ${hoursA}h ${minutesA}m ${secondsA}s`;
-            document.getElementById('ikii-birthday-countdown').innerHTML = 
-                `${daysI}d ${hoursI}h ${minutesI}m ${secondsI}s`;
+            const elemAyyaa = document.getElementById('ayyaa-birthday-countdown');
+            const elemIkii = document.getElementById('ikii-birthday-countdown');
+            if (elemAyyaa) elemAyyaa.innerHTML = `${daysA}d ${hoursA}h ${minutesA}m ${secondsA}s`;
+            if (elemIkii) elemIkii.innerHTML = `${daysI}d ${hoursI}h ${minutesI}m ${secondsI}s`;
         }
 
         // Parse link Google Drive menjadi direct-link
@@ -1092,7 +1101,7 @@ const firebaseConfig = {
 
         // Listener Real-time & Sinkronisasi Data Firestore
         function setupDataListeners() {
-            if (isFirebaseReady) {
+            if (isFirebaseReady && db) {
                 // 1. Sinkronisasi Obrolan secara Real-time dari Cloud
                 onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'chats'), (snapshot) => {
                     let messages = [];
@@ -1135,7 +1144,7 @@ const firebaseConfig = {
 
             const finalUrl = parseDriveUrl(rawUrl);
 
-            if (isFirebaseReady) {
+            if (isFirebaseReady && db) {
                 try {
                     await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'gallery'), {
                         url: finalUrl,
@@ -1155,7 +1164,7 @@ const firebaseConfig = {
 
         // Hapus Foto dari Cloud / Local
         async function deleteDriveItem(id, index) {
-            if (isFirebaseReady && !id.startsWith('local-')) {
+            if (isFirebaseReady && db && !id.startsWith('local-')) {
                 try {
                     await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'gallery', id));
                 } catch (e) {
@@ -1172,7 +1181,14 @@ const firebaseConfig = {
         // Render Seluruh Grid Galeri (Foto Bawaan + Kustom)
         function renderGallery(customItems = []) {
             const grid = document.getElementById('gallery-grid');
+            if (!grid) return;
             grid.innerHTML = '';
+
+            // Update stats counter kiriman di profil
+            const totalPostsElem = document.getElementById('total-posts-count');
+            if (totalPostsElem) {
+                totalPostsElem.innerText = defaultGalleryItems.length + customItems.length;
+            }
 
             // Render Foto Utama bawaan terlebih dahulu
             defaultGalleryItems.forEach((item, idx) => {
@@ -1181,8 +1197,8 @@ const firebaseConfig = {
                         <img src="${item.url}" 
                              onerror="this.style.display='none'; document.getElementById('fb-foto-${idx}').style.display='flex';" 
                              class="w-full h-full object-cover">
-                        <div id="fb-foto-${idx}" class="w-full h-full flex flex-col items-center justify-center p-4 text-center bg-[#f7ebe0]">
-                            <i data-lucide="${item.isVideo ? 'video' : 'image'}" class="w-8 h-8 text-[#dbbc9d] mb-2"></i>
+                        <div id="fb-foto-${idx}" style="display:none;" class="w-full h-full flex flex-col items-center justify-center p-4 text-center bg-[#f7ebe0]">
+                            <i data-lucide="image" class="w-8 h-8 text-[#dbbc9d] mb-2"></i>
                             <span class="text-xs font-serif-aesthetic italic text-[#8e766e]">"${item.caption}"</span>
                             <span class="text-[10px] text-gray-400 mt-2 font-mono">[Foto ${idx + 1}]</span>
                         </div>
@@ -1298,7 +1314,8 @@ const firebaseConfig = {
             }
 
             modal.classList.remove('hidden');
-            modal.querySelector('.smooth-scroll-container').scrollTop = 0;
+            const scrollContainer = modal.querySelector('.smooth-scroll-container');
+            if (scrollContainer) scrollContainer.scrollTop = 0;
             lucide.createIcons();
         }
 
@@ -1343,7 +1360,7 @@ const firebaseConfig = {
                 timestamp: Date.now()
             };
 
-            if (isFirebaseReady) {
+            if (isFirebaseReady && db) {
                 try {
                     await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'chats'), messageObj);
                 } catch (e) {
@@ -1361,6 +1378,7 @@ const firebaseConfig = {
         // Render Thread DM secara Dinamis sesuai Switch Pengirim
         function renderMessages(messagesList = []) {
             const thread = document.getElementById('chat-thread');
+            if (!thread) return;
             thread.innerHTML = '';
 
             messagesList.forEach(msg => {
@@ -1419,8 +1437,8 @@ const firebaseConfig = {
             let savedConfig = null;
             if (savedConfigRaw) {
                 try { savedConfig = JSON.parse(savedConfigRaw); } catch(e) {}
-            } else if (CUSTOM_FIREBASE_CONFIG && CUSTOM_FIREBASE_CONFIG.apiKey !== "YOUR_API_KEY") {
-                savedConfig = CUSTOM_FIREBASE_CONFIG;
+            } else if (activeConfig) {
+                savedConfig = activeConfig;
             }
 
             if (savedConfig) {
@@ -1439,6 +1457,7 @@ const firebaseConfig = {
 
         function showCloudStatus(text, isError = false) {
             const statusEl = document.getElementById('cloud-status-msg');
+            if (!statusEl) return;
             statusEl.innerText = text;
             statusEl.className = `text-xs text-center font-medium ${isError ? 'text-red-500' : 'text-green-600'}`;
             statusEl.classList.remove('hidden');
