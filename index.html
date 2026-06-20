@@ -4,21 +4,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>About Us</title>
+    
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts: Playfair Display untuk judul, Plus Jakarta Sans untuk teks membaca -->
+    
+    <!-- Google Fonts: Playfair Display & Plus Jakarta Sans -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght=300;400;500;600&family=Playfair+Display:ital,wght=0,400;0,600;1,400&family=Caveat:wght=400;700&display=swap" rel="stylesheet">
+    
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
+    
     <style>
         html {
             scroll-behavior: smooth;
         }
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
-            background-color: #f7f3ed; /* Krem hangat sesuai gambar */
+            background-color: #f7f3ed; /* Krem hangat */
             color: #4a3e3d;
         }
         .font-serif-aesthetic {
@@ -111,11 +115,13 @@
                 <div class="flex items-center space-x-2">
                     <span class="text-2xl font-serif-aesthetic font-semibold text-[#bd7a6b] tracking-wider cursor-pointer" onclick="switchTab('home')">About Us</span>
                     <span class="text-xs px-2 py-0.5 rounded-full bg-[#f1e4d8] text-[#8e766e] font-medium"> Love</span>
+                    
                     <!-- Indikator Koneksi Realtime -->
                     <span id="db-status-badge" class="text-[10px] px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 font-medium flex items-center gap-1">
                         <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span> Menyambungkan...
                     </span>
                 </div>
+                
                 <!-- Instagram Top Icons -->
                 <div class="flex items-center space-x-5 text-[#8e766e]">
                     <button onclick="switchTab('profile')" class="hover:text-[#bd7a6b] transition-colors relative" title="Momen Spesial">
@@ -134,7 +140,6 @@
 
             <!-- ================= HOME SECTION (Notebook Style) ================= -->
             <section id="home-sec" class="fade-in space-y-6">
-                <!-- Outer Binder Page Container -->
                 <div class="bg-[#fcfaf7] border border-[#eaddd0] rounded-3xl p-6 sm:p-10 shadow-sm relative overflow-hidden">
                     
                     <!-- Notebook Ring Bindings (Left Side Decorative) -->
@@ -159,7 +164,6 @@
 
                         <!-- Main Photo Box -->
                         <div class="relative group rounded-2xl overflow-hidden border-4 border-white shadow-md rotate-[-1deg] transition-transform hover:rotate-0 duration-300 bg-white">
-                            <!-- FOTO UTAMA BERANDA -->
                             <div class="aspect-[16/9] w-full bg-[#f5ebe0] flex flex-col items-center justify-center text-center relative overflow-hidden">
                                 <img id="main-photo" src="https://lh3.googleusercontent.com/d/1jrcTIlvUwQPy0c1CcQQ3h8Zb_aH5BmJ9" alt="Foto Utama"
                                     onerror="this.style.display='none'; document.getElementById('main-photo-fallback').style.display='flex';" 
@@ -587,7 +591,7 @@
                         <!-- Chat default sepenuhnya kosong dan siap digunakan -->
                     </div>
 
-                    <!-- Warning Banner Database Cloud (Akan muncul jika Aturan Keamanan Firebase ditolak) -->
+                    <!-- Warning Banner Database Cloud -->
                     <div id="db-warning-banner" class="hidden bg-amber-50 border border-amber-200 text-amber-800 text-xs rounded-xl p-3.5 space-y-1 mb-4 mx-2">
                         <p class="font-bold flex items-center gap-1.5">
                             <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-600"></i> Database Cloud Belum Siap / Luring
@@ -757,7 +761,6 @@ service cloud.firestore {
 
         <!-- ================= PLAYLIST DETAIL POPUP (MODAL) ================= -->
         <div id="music-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-6 hidden transition-all duration-300">
-            <!-- Modal Box dibuat Scrollable secara vertikal dengan transisi smooth -->
             <div class="max-w-md w-full bg-[#fcfaf7] border border-[#eaddd0] rounded-3xl p-6 shadow-xl fade-in space-y-5 relative max-h-[85vh] overflow-y-auto scroll-smooth smooth-scroll-container pr-2">
                 
                 <!-- Close Button -->
@@ -1022,6 +1025,17 @@ service cloud.firestore {
                     if (!isFirebaseReady || !currentAuthUser) {
                         setupDataListeners();
                     }
+
+                    // Berikan jeda sejenak setelah layout dirender untuk melakukan auto-scroll chat paling bawah
+                    setTimeout(() => {
+                        const thread = document.getElementById('chat-thread');
+                        if (thread) {
+                            thread.scrollTo({
+                                top: thread.scrollHeight,
+                                behavior: 'smooth'
+                            });
+                        }
+                    }, 400);
                     
                     setInterval(updateBirthdayCountdowns, 1000);
                     updateBirthdayCountdowns();
