@@ -934,13 +934,13 @@ service cloud.firestore {
         import { getFirestore, collection, doc, addDoc, deleteDoc, onSnapshot, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // ================= MANUAL FIREBASE CONFIGURATION FOR DEPLOYMENT =================
-        const CUSTOM_FIREBASE_CONFIG = {
-            apiKey: "AIzaSyDLRPLT4wj9Z5Ty4E9zHiWM2J1XsFt51H4",
-            authDomain: "kiiayyaa.firebaseapp.com",
-            projectId: "kiiayyaa",
-            storageBucket: "kiiayyaa.firebasestorage.app",
-            messagingSenderId: "493602497047",
-            appId: "1:493602497047:web:df1dd4f9f96f8fb8eeb252"
+        const firebaseConfig = {
+          apiKey: "AIzaSyDlRPLT4wj9Z5Ty4E9zHiWM2J1XsFt5lH4",
+          authDomain: "kiiayyaa.firebaseapp.com",
+          projectId: "kiiayyaa",
+          storageBucket: "kiiayyaa.firebasestorage.app",
+          messagingSenderId: "493602497047",
+          appId: "1:493602497047:web:df1dd4f9f96f8fb8eeb252"
         };
 
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'ayyaa-ikii-couplegram';
