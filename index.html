@@ -837,7 +837,7 @@
             apiKey: "AIzaSyDLRPLT4wj9Z5Ty4E9zHiWM2J1XsFt51H4",
             authDomain: "kiiayyaa.firebaseapp.com",
             projectId: "kiiayyaa",
-            storageBucket: "kiiayyaa.firebasestorage.app",
+            storageBucket: "kiiayyaa.firebasestorage.app", // Perbaikan spasi
             messagingSenderId: "493602497047",
             appId: "1:493602497047:web:df1dd4f9f96f8fb8eeb252"
         };
@@ -883,7 +883,7 @@
                 onAuthStateChanged(auth, (user) => {
                     if (user) {
                         currentAuthUser = user;
-                        // Setup listener data cloud begitu pengguna terotentikasi
+                        // Setup listener data cloud begitu pengguna terotentikasi (Aturan 3)
                         setupDataListeners();
                     } else {
                         // Jika belum login, jalankan autentikasi secara diam-diam terlebih dahulu
@@ -908,8 +908,8 @@
             }
         }
 
-        // Bersihkan data awal obrolan lokal agar bersih
-        let fallbackChats = [];
+        // Simpan referensi ke data lokal jika Firebase tidak aktif / sedang offline
+        let fallbackChats = JSON.parse(localStorage.getItem('ayyaa_ikii_chat')) || [];
         let fallbackGallery = JSON.parse(localStorage.getItem('ayyaa_ikii_gallery_custom')) || [];
 
         // Inisialisasi ikon Lucide secara global
@@ -963,7 +963,9 @@
                     }
 
                     // Sinkronisasi data awal/lokal sebagai cadangan sebelum snapshot aktif
-                    setupDataListeners();
+                    if (!isFirebaseReady || !currentAuthUser) {
+                        setupDataListeners();
+                    }
                     
                     setInterval(updateBirthdayCountdowns, 1000);
                     updateBirthdayCountdowns();
@@ -1090,6 +1092,7 @@
 
         // Listener Real-time & Sinkronisasi Data Firestore
         function setupDataListeners() {
+            // Amankan pengambilan data Firestore (Hanya lakukan jika auth sudah siap) - Aturan 3
             if (isFirebaseReady && currentAuthUser) {
                 // 1. Sinkronisasi Obrolan secara Real-time dari Cloud
                 onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'chats'), (snapshot) => {
@@ -1097,7 +1100,7 @@
                     snapshot.forEach(doc => {
                         messages.push({ id: doc.id, ...doc.data() });
                     });
-                    // Urutkan berdasarkan waktu di memori lokal
+                    // Urutkan berdasarkan waktu di memori lokal (Aturan 2)
                     messages.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
                     renderMessages(messages);
                 }, (error) => {
@@ -1300,6 +1303,7 @@
             lucide.createIcons();
         }
 
+        // Tutup Popup Modal
         function closeMusicPopup() {
             const modal = document.getElementById('music-modal');
             modal.classList.add('hidden');
