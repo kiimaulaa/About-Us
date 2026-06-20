@@ -175,16 +175,6 @@
                             </div>
                         </div>
 
-                        <!-- Love Counter Widget -->
-                        <div class="p-5 bg-[#fbf9f6] border border-[#eaddd0] rounded-2xl text-center space-y-2 max-w-md mx-auto shadow-sm">
-                            <p class="text-xs uppercase tracking-wider text-[#bd7a6b] font-semibold flex items-center justify-center gap-1.5">
-                                <i data-lucide="heart" class="w-4 h-4 fill-[#bd7a6b]"></i> Perjalanan Bersama ❤️
-                            </p>
-                            <h3 id="love-journey-counter" class="text-base sm:text-lg font-serif-aesthetic font-semibold text-[#4a3e3d]">
-                                Menghitung momen indah kita...
-                            </h3>
-                        </div>
-
                         <!-- Cute Note Text -->
                         <div class="space-y-4 text-sm sm:text-base leading-relaxed text-[#5c4a47] font-light">
                             <p class="indent-6">
@@ -842,14 +832,14 @@ service cloud.firestore {
                 <div class="space-y-2">
                     <h4 class="text-xs font-semibold text-[#bd7a6b] uppercase tracking-wide">Pesan Kenangan:</h4>
                     <p id="modal-desc" class="text-sm text-[#5c4a47] leading-relaxed font-light break-words">
-                        Ini adalah tempat pesan kenangan lagumu berjalan. Cerita manis di balik setiap harmoni melodi kita yang abadi.
+                        About Us
                     </p>
                 </div>
 
                 <div class="pt-2">
                     <button onclick="closeMusicPopup()" 
                         class="w-full bg-[#f1e4d8] text-[#8e766e] py-2.5 rounded-xl text-sm font-medium hover:bg-[#eaddd0] transition-colors">
-                        Selesai Membaca ❤️
+                        Okeyy..
                     </button>
                 </div>
             </div>
@@ -872,27 +862,6 @@ service cloud.firestore {
             <button onclick="toggleGlobalAudio()" id="global-play-btn" class="w-8 h-8 rounded-full bg-[#e79e8c]/20 hover:bg-[#e79e8c]/30 text-[#bd7a6b] flex items-center justify-center transition-colors">
                 <i data-lucide="play" class="w-4 h-4 fill-current"></i>
             </button>
-        </div>
-
-        <!-- ================= MODAL KONFIRMASI HAPUS CHAT ================= -->
-        <div id="clear-chat-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-6 hidden transition-all duration-300">
-            <div class="max-w-sm w-full bg-[#fcfaf7] border border-[#eaddd0] rounded-3xl p-6 shadow-xl text-center space-y-4 fade-in">
-                <div class="w-12 h-12 rounded-full bg-red-100 text-red-500 flex items-center justify-center mx-auto">
-                    <i data-lucide="trash-2" class="w-6 h-6"></i>
-                </div>
-                <h3 class="text-lg font-serif-aesthetic font-semibold text-[#4a3e3d]">Bersihkan Semua Chat?</h3>
-                <p class="text-xs text-gray-500 leading-relaxed font-light">
-                    Tindakan ini akan menghapus seluruh riwayat pesan secara permanen baik di HP kamu maupun HP pasanganmu.
-                </p>
-                <div class="flex gap-2 pt-2">
-                    <button onclick="confirmClearChats()" class="flex-grow bg-red-400 hover:bg-red-500 text-white py-2.5 rounded-xl text-sm font-medium transition-all">
-                        Ya, Hapus Semua
-                    </button>
-                    <button onclick="closeClearChatModal()" class="flex-grow bg-gray-100 hover:bg-gray-200 text-gray-600 py-2.5 rounded-xl text-sm font-medium transition-all">
-                        Batal
-                    </button>
-                </div>
-            </div>
         </div>
 
         <!-- ================= INSTAGRAM-STYLE FIXED BOTTOM NAVIGATION ================= -->
