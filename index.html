@@ -408,7 +408,7 @@
                     </div>
 
                     <!-- LAGU 13 -->
-                    <div onclick="openMusicPopup('One Only', 'Yogyakarta', 'cuma mau kenal kamu, deket kamu, sama kamu, selamanyaa...', 'sparkles', 'https://github.com/kiimaulaa/lagu-web/raw/refs/heads/main/Pamungkas%20-%20One%20Only%20(Lyrics%20Video)%20%5BdBFp0Ext0y8%5D.mp3', 'https://lh3.googleusercontent.com/d/1jXfUsLou2_f2ep_Zn3tvv9AHX_22MvJE')"
+                    <div onclick="openMusicPopup('One Only', 'Yogyakarta', 'cuma mau kenal kamu, deket kamu, sama kamu, selamanyaa...', 'sparkles', 'https://github.com/kiimaulaa/lagu-web/raw/refs/heads/main/Pamungkas%20-%20One%20Only%20(Lyrics%20Video)%20%5BdBFp0Ext0y8%5D.mp3', 'https://lh3.googleusercontent.com/d/1jXfUsLou2_f2ep_Zn3tvv9AHX_22MvJE">"
                         class="flex items-center justify-between p-4 bg-[#fcfaf7] hover:bg-[#fbf4ed] border border-[#eaddd0] rounded-2xl cursor-pointer transition-all group shadow-sm hover:shadow">
                         <div class="flex items-center space-x-4">
                             <div class="w-12 h-12 rounded-xl bg-[#e79e8c]/20 flex items-center justify-center text-[#bd7a6b] group-hover:scale-110 transition-transform">
@@ -493,7 +493,7 @@
                     </div>
 
                     <!-- LAGU 18 -->
-                    <div onclick="openMusicPopup('Masa Ini, Nanti, dan Masa Indah Lainnya', 'Yogyakarta', 'Setiap orang hidup dalam kalimatnya yang pernah, dan sekarang sudah. Pada hal-hal yang sudah berlalu, bolehkah untuk rindu?. -3726 mdpl.', 'sparkles', 'https://github.com/kiimaulaa/lagu-web/raw/refs/heads/main/Masa%20ini,%20Nanti,%20dan%20Masa%20Indah%20Lainnya%20%5BdsOGH_ZBdCM%5D%20(1).mp3', 'https://lh3.googleusercontent.com/d/12gSY_QmYFohFe5luMfqZASsQDATWThsy')"
+                    <div onclick="openMusicPopup('Masa Ini, Nanti, dan Masa Indah Lainnya', 'Yogyakarta', 'Setiap orang hidup dalam kalimatnya yang pernah, and sekarang sudah. Pada hal-hal yang sudah berlalu, bolehkah untuk rindu?. -3726 mdpl.', 'sparkles', 'https://github.com/kiimaulaa/lagu-web/raw/refs/heads/main/Masa%20ini,%20Nanti,%20dan%20Masa%20Indah%20Lainnya%20%5BdsOGH_ZBdCM%5D%20(1).mp3', 'https://lh3.googleusercontent.com/d/12gSY_QmYFohFe5luMfqZASsQDATWThsy')"
                         class="flex items-center justify-between p-4 bg-[#fcfaf7] hover:bg-[#fbf4ed] border border-[#eaddd0] rounded-2xl cursor-pointer transition-all group shadow-sm hover:shadow">
                         <div class="flex items-center space-x-4">
                             <div class="w-12 h-12 rounded-xl bg-[#e79e8c]/20 flex items-center justify-center text-[#bd7a6b] group-hover:scale-110 transition-transform">
@@ -1169,6 +1169,7 @@ service cloud.firestore {
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
+        // Scroll ke Element
         function scrollToSection(sectionId) {
             if (sectionId === 'home-sec') switchTab('home');
             else if (sectionId === 'playlist-sec') switchTab('search');
@@ -1691,7 +1692,7 @@ service cloud.firestore {
             }
 
             localStorage.setItem('custom_firebase_config', JSON.stringify(config));
-            showCloudStatus("Konfigurasi disimpan! Memuat ulang halaman untuk menghubungkan database...");
+            showCloudStatus("Konfigurasi disimpan! Memuat ulang halaman..."),
             setTimeout(() => {
                 window.location.reload();
             }, 1500);
