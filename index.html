@@ -117,7 +117,7 @@
                     <span class="text-xs px-2 py-0.5 rounded-full bg-[#f1e4d8] text-[#8e766e] font-medium"> Love</span>
                     
                     <!-- Indikator Koneksi Realtime -->
-                    <span id="db-status-badge" class="text-[10px] px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 font-medium flex items-center gap-1">
+                    <span id="db-status-badge" class="text-[10px] px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 font-medium flex items-center gap-1 cursor-pointer" onclick="switchTab('chat')" title="Klik untuk status detail">
                         <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span> Menyambungkan...
                     </span>
                 </div>
@@ -459,7 +459,7 @@
                     </div>
 
                     <!-- LAGU 16 -->
-                    <div onclick="openMusicPopup('Nanti Kita Seperti Ini', 'Yogyakarta', 'Di perjalanan yang panjang ini, jangan jadi milik siapa pun dulu, ya? -3726 mdpl.', 'sparkles', 'https://github.com/kiimaulaa/lagu-web/raw/refs/heads/main/BATAS%20SENJA%20-%20Nanti%20Kita%20Seperti%20Ini%20(OFFICIAL%20MUSIC%20VIDEO%20)%20%5Bs6H6ffS6zJI%5D.mp3', 'https://lh3.googleusercontent.com/d/1AIWMfj-RQHfr4vIzHHC0GppW7AXbp8Nn')"
+                    <div onclick="openMusicPopup('Nanti Kita Seperti Ini', 'Yogyakarta', 'Di perjalanan yang panjang ini, jangan jadi milik siapa pun dulu, ya? -3726 mdpl.', 'sparkles', 'https://github.com/kiimaulaa/lagu-web/raw/refs/heads/main/BATAS%20SENJA%20-%20Nanti%20Kita%20Like%20This%20(OFFICIAL%20MUSIC%20VIDEO%20)%20%5Bs6H6ffS6zJI%5D.mp3', 'https://lh3.googleusercontent.com/d/1AIWMfj-RQHfr4vIzHHC0GppW7AXbp8Nn')"
                         class="flex items-center justify-between p-4 bg-[#fcfaf7] hover:bg-[#fbf4ed] border border-[#eaddd0] rounded-2xl cursor-pointer transition-all group shadow-sm hover:shadow">
                         <div class="flex items-center space-x-4">
                             <div class="w-12 h-12 rounded-xl bg-[#e79e8c]/20 flex items-center justify-center text-[#bd7a6b] group-hover:scale-110 transition-transform">
@@ -612,6 +612,13 @@ service cloud.firestore {
     }
   }
 }</pre>
+                        <!-- Panel Diagnostik Detail Error -->
+                        <div class="mt-3 p-3 bg-gray-900 text-gray-100 rounded-xl">
+                            <p class="font-bold text-[10px] text-gray-400 mb-1">Diagnostic Log (Laporan Error):</p>
+                            <div id="debug-log-list" class="space-y-1 max-h-32 overflow-y-auto font-mono text-[10px]">
+                                <!-- Pesan error dari server akan masuk di sini secara otomatis -->
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Chat Input Field -->
@@ -903,6 +910,16 @@ service cloud.firestore {
         let unsubscribeChats = null;
         let unsubscribeGallery = null;
 
+        // Debug Logger untuk mendeteksi error di layar HP secara langsung
+        function logDebug(stage, status, detail = "") {
+            console.log(`[DEBUG] ${stage}: ${status} ${detail}`);
+            const logEl = document.getElementById('debug-log-list');
+            if (logEl) {
+                const time = new Date().toLocaleTimeString();
+                logEl.innerHTML += `<div class="py-0.5 border-b border-gray-800"><span class="text-gray-500">[${time}]</span> <span class="text-amber-400 font-semibold">${stage}</span>: ${status} <span class="text-red-400 break-all">${detail}</span></div>`;
+            }
+        }
+
         // Pilih konfigurasi Firebase yang akan digunakan
         let firebaseConfig = null;
 
@@ -929,21 +946,24 @@ service cloud.firestore {
         // Jalankan Autentikasi terlebih dahulu secara aman (Aturan 3)
         if (firebaseConfig) {
             try {
+                logDebug("Sistem", "Menginisialisasi Firebase...");
                 const app = initializeApp(firebaseConfig);
                 auth = getAuth(app);
                 db = getFirestore(app);
                 isFirebaseReady = true;
+                logDebug("Sistem", "Firebase berhasil diinisialisasi.");
 
                 // Memulai proses login anonim di latar belakang
                 const initAuth = async () => {
                     try {
+                        logDebug("Autentikasi", "Mencoba masuk...");
                         if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
                             await signInWithCustomToken(auth, __initial_auth_token);
                         } else {
                             await signInAnonymously(auth);
                         }
                     } catch (err) {
-                        console.error("Gagal melakukan login anonim otomatis:", err);
+                        logDebug("Autentikasi", "Masuk Gagal!", err.code + " - " + err.message);
                         updateUIConnectionStatus(false);
                     }
                 };
@@ -953,19 +973,22 @@ service cloud.firestore {
                     onAuthStateChanged(auth, (user) => {
                         if (user) {
                             currentAuthUser = user;
+                            logDebug("Autentikasi", "Pengguna Terdaftar: " + user.uid);
                             updateUIConnectionStatus(true);
                             setupDataListeners();
                         } else {
+                            logDebug("Autentikasi", "Status berubah menjadi keluar.");
                             updateUIConnectionStatus(false);
                         }
                     });
                 });
 
             } catch (e) {
-                console.error("Gagal memulai modul Firebase: ", e);
+                logDebug("Sistem", "Inisialisasi Gagal!", e.message);
                 updateUIConnectionStatus(false);
             }
         } else {
+            logDebug("Sistem", "Konfigurasi tidak ditemukan.");
             updateUIConnectionStatus(false);
         }
 
@@ -975,11 +998,11 @@ service cloud.firestore {
             if (!badge) return;
 
             if (connected) {
-                badge.className = "text-[10px] px-2 py-0.5 rounded-full bg-green-100 text-green-700 font-medium flex items-center gap-1";
+                badge.className = "text-[10px] px-2 py-0.5 rounded-full bg-green-100 text-green-700 font-medium flex items-center gap-1 cursor-pointer";
                 badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span> Terhubung (Cloud)`;
                 document.getElementById('db-warning-banner').classList.add('hidden');
             } else {
-                badge.className = "text-[10px] px-2 py-0.5 rounded-full bg-red-100 text-red-700 font-medium flex items-center gap-1";
+                badge.className = "text-[10px] px-2 py-0.5 rounded-full bg-red-100 text-red-700 font-medium flex items-center gap-1 cursor-pointer";
                 badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-red-400"></span> Luring (Offline)`;
             }
         }
@@ -990,7 +1013,7 @@ service cloud.firestore {
             rulesPre.textContent = `rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    match /artifacts/${appId}/public/data/{document=**} {
+    match /artifacts/\${appId}/public/data/{document=**} {
       allow read, write: if true;
     }
   }
@@ -1050,17 +1073,6 @@ service cloud.firestore {
                     if (!isFirebaseReady || !currentAuthUser) {
                         setupDataListeners();
                     }
-
-                    // Berikan jeda sejenak setelah layout dirender untuk melakukan auto-scroll chat paling bawah
-                    setTimeout(() => {
-                        const thread = document.getElementById('chat-thread');
-                        if (thread) {
-                            thread.scrollTo({
-                                top: thread.scrollHeight,
-                                behavior: 'smooth'
-                            });
-                        }
-                    }, 400);
                     
                     setInterval(updateBirthdayCountdowns, 1000);
                     updateBirthdayCountdowns();
@@ -1199,6 +1211,8 @@ service cloud.firestore {
 
             // Jalankan pengambilan data Firestore jika status Autentikasi sukses (Aturan 3)
             if (isFirebaseReady && currentAuthUser) {
+                logDebug("Database", "Membuka sinkronisasi real-time...");
+                
                 // 1. Sinkronisasi Obrolan secara Real-time dari Cloud
                 unsubscribeChats = onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'chats'), (snapshot) => {
                     let messages = [];
@@ -1210,7 +1224,7 @@ service cloud.firestore {
                     renderMessages(messages);
                     document.getElementById('db-warning-banner').classList.add('hidden');
                 }, (error) => {
-                    console.error("Gagal sinkronisasi chat cloud (kemungkinan Security Rules Firestore ditolak):", error);
+                    logDebug("Database (Chat)", "Akses Ditolak!", error.code + " - " + error.message);
                     // Tampilkan banner peringatan kepada user agar tahu cara memperbaikinya di Firebase Console
                     document.getElementById('db-warning-banner').classList.remove('hidden');
                     updateUIConnectionStatus(false);
@@ -1226,7 +1240,7 @@ service cloud.firestore {
                     customItems.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
                     renderGallery(customItems);
                 }, (error) => {
-                    console.error("Gagal sinkronisasi galeri cloud:", error);
+                    logDebug("Database (Galeri)", "Gagal!", error.code + " - " + error.message);
                     renderGallery(fallbackGallery.map((url, i) => ({ id: `local-${i}`, url })));
                 });
 
@@ -1489,7 +1503,7 @@ service cloud.firestore {
                     });
                     
                     await Promise.all(deletePromises);
-                    showCloudStatus("Semua pesan cloud berhasil dibersihkan!");
+                    logDebug("Database", "Semua pesan cloud berhasil dibersihkan.");
                 } catch (e) {
                     console.error("Gagal menghapus pesan cloud Firestore: ", e);
                 }
