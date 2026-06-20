@@ -114,11 +114,11 @@
             <div class="max-w-4xl mx-auto px-6 py-4 flex items-center justify-between">
                 <div class="flex items-center space-x-2">
                     <span class="text-2xl font-serif-aesthetic font-semibold text-[#bd7a6b] tracking-wider cursor-pointer" onclick="switchTab('home')">About Us</span>
-                    <span class="text-xs px-2 py-0.5 rounded-full bg-[#f1e4d8] text-[#8e766e] font-medium"> Love</span>
+                    <span class="text-xs px-2 py-0.5 rounded-full bg-[#f1e4d8] text-[#8e766e] font-medium font-serif-aesthetic">Love</span>
                     
                     <!-- Indikator Koneksi Realtime -->
-                    <span id="db-status-badge" class="text-[10px] px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 font-medium flex items-center gap-1 cursor-pointer" onclick="switchTab('chat')" title="Klik untuk status detail">
-                        <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span> Menyambungkan...
+                    <span id="db-status-badge" class="text-[10px] px-2.5 py-1 rounded-full bg-red-100 text-red-700 font-medium flex items-center gap-1 cursor-pointer transition-all hover:bg-red-200" onclick="openDebugModal()" title="Klik untuk cek status error detail">
+                        <span class="w-1.5 h-1.5 rounded-full bg-red-400 animate-pulse"></span> Menyambungkan...
                     </span>
                 </div>
                 
@@ -612,13 +612,6 @@ service cloud.firestore {
     }
   }
 }</pre>
-                        <!-- Panel Diagnostik Detail Error -->
-                        <div class="mt-3 p-3 bg-gray-900 text-gray-100 rounded-xl">
-                            <p class="font-bold text-[10px] text-gray-400 mb-1">Diagnostic Log (Laporan Error):</p>
-                            <div id="debug-log-list" class="space-y-1 max-h-32 overflow-y-auto font-mono text-[10px]">
-                                <!-- Pesan error dari server akan masuk di sini secara otomatis -->
-                            </div>
-                        </div>
                     </div>
 
                     <!-- Chat Input Field -->
@@ -662,9 +655,9 @@ service cloud.firestore {
 
                             <!-- Followers / Following Stats -->
                             <div class="flex justify-center sm:justify-start gap-6 text-sm">
-                                <div><strong class="text-[#4a3e3d]">-</strong> Kiriman</div>
-                                <div><strong class="text-[#4a3e3d]">-</strong> Pengikut</div>
-                                <div><strong class="text-[#4a3e3d]">-</strong> Mengikuti</div>
+                                <div id="profile-stat-posts"><strong class="text-[#4a3e3d]">1</strong> Kiriman</div>
+                                <div><strong class="text-[#4a3e3d]">1</strong> Pengikut</div>
+                                <div><strong class="text-[#4a3e3d]">1</strong> Mengikuti</div>
                             </div>
 
                             <!-- Instagram Bio Layout -->
@@ -678,6 +671,17 @@ service cloud.firestore {
                                 </p>
                             </div>
                         </div>
+                    </div>
+
+                    <!-- Live Love Journey Tracker -->
+                    <div class="bg-gradient-to-r from-rose-50 to-amber-50 rounded-2xl p-5 border border-rose-100 text-center flex flex-col justify-center items-center shadow-xs">
+                        <p class="text-xs uppercase tracking-wider text-[#bd7a6b] font-bold flex items-center gap-1.5">
+                            <i data-lucide="sparkles" class="w-4 h-4 text-[#e79e8c] fill-[#e79e8c]"></i> Love Journey Tracker <i data-lucide="heart" class="w-3.5 h-3.5 text-[#e79e8c] fill-[#e79e8c]"></i>
+                        </p>
+                        <h3 id="love-journey-counter" class="text-2xl font-serif-aesthetic font-semibold text-[#4a3e3d] mt-2 tracking-wide">
+                            Menghitung waktu bahagia...
+                        </h3>
+                        <p class="text-[10px] text-gray-400 mt-1">Dihitung sejak pertama kali dekat (12 September 2024)</p>
                     </div>
 
                     <!-- Birthday Countdown Area -->
@@ -715,6 +719,45 @@ service cloud.firestore {
             </section>
 
         </main>
+
+        <!-- ================= DIAGNOSTIC LOG MODAL (DETEKTOR ERROR) ================= -->
+        <div id="debug-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm px-6 hidden transition-all duration-300">
+            <div class="max-w-md w-full bg-[#fcfaf7] border border-[#eaddd0] rounded-3xl p-6 shadow-xl fade-in space-y-4 max-h-[80vh] flex flex-col">
+                <div class="flex items-center justify-between border-b border-[#f3eae1] pb-2 flex-shrink-0">
+                    <h3 class="text-lg font-serif-aesthetic font-semibold text-[#4a3e3d] flex items-center gap-1.5">
+                        <i data-lucide="terminal" class="w-5 h-5 text-amber-500"></i> Laporan Detektor Error
+                    </h3>
+                    <button onclick="closeDebugModal()" class="text-gray-400 hover:text-gray-600">
+                        <i data-lucide="x" class="w-5 h-5"></i>
+                    </button>
+                </div>
+                <div class="flex-grow overflow-y-auto space-y-4 pr-1 text-xs text-gray-600 leading-relaxed font-light smooth-scroll-container">
+                    <p class="font-medium text-[#bd7a6b]">Kenapa websitemu berstatus "Luring (Offline)"?</p>
+                    <p>Status offline terjadi karena koneksi ke server database Firebase gagal dilakukan. Silakan periksa daftar baris error di bawah untuk mengetahui akar masalahnya:</p>
+                    
+                    <div class="p-3 bg-gray-900 text-gray-100 rounded-xl">
+                        <p class="font-bold text-[10px] text-gray-400 mb-1 font-mono">Daftar Diagnostik Server (Error Log):</p>
+                        <div id="debug-log-list" class="space-y-1.5 max-h-48 overflow-y-auto font-mono text-[10px]">
+                            <!-- Pesan error dari server akan masuk di sini secara otomatis -->
+                        </div>
+                    </div>
+
+                    <div class="bg-amber-50 border border-amber-200 text-amber-900 p-3.5 rounded-xl space-y-2">
+                        <p class="font-bold text-[11px] flex items-center gap-1"><i data-lucide="sparkles" class="w-3.5 h-3.5 text-amber-600"></i> Solusi Umum Penyebab Offline:</p>
+                        <ol class="list-decimal list-inside space-y-1 text-[11px] text-gray-700">
+                            <li><strong>Aktifkan Anonymous Auth:</strong> Di Firebase Console, buka menu <strong class="text-amber-800">Authentication</strong> -> <strong class="text-amber-800">Sign-in method</strong> -> Aktifkan "Anonymous". Jika ini tidak aktif, kamu tidak akan bisa login.</li>
+                            <li><strong>Buat Firestore Database:</strong> Pastikan kamu sudah menekan tombol "Create Database" di menu Firestore Firebase Console.</li>
+                            <li><strong>Atur Security Rules:</strong> Pastikan rules database-mu mengizinkan akses tulis dan baca untuk jalur `/artifacts/...`</li>
+                        </ol>
+                    </div>
+                </div>
+                <div class="pt-2 flex-shrink-0">
+                    <button onclick="closeDebugModal()" class="w-full bg-[#e79e8c] hover:bg-[#db8d7b] text-white py-2.5 rounded-xl text-sm font-medium transition-all shadow-sm">
+                        Mengerti, Tutup Laporan
+                    </button>
+                </div>
+            </div>
+        </div>
 
         <!-- ================= CLOUD SYNC CONFIG POPUP (MODAL) ================= -->
         <div id="cloud-config-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-6 hidden transition-all duration-300">
@@ -895,7 +938,7 @@ service cloud.firestore {
             apiKey: "AIzaSyDLRPLT4wj9Z5Ty4E9zHiWM2J1XsFt51H4",
             authDomain: "kiiayyaa.firebaseapp.com",
             projectId: "kiiayyaa",
-            storageBucket: "kiiayyaa.firebasestorage.app", // Dipastikan tanpa spasi
+            storageBucket: "kiiayyaa.firebasestorage.app",
             messagingSenderId: "493602497047",
             appId: "1:493602497047:web:df1dd4f9f96f8fb8eeb252"
         };
@@ -916,7 +959,7 @@ service cloud.firestore {
             const logEl = document.getElementById('debug-log-list');
             if (logEl) {
                 const time = new Date().toLocaleTimeString();
-                logEl.innerHTML += `<div class="py-0.5 border-b border-gray-800"><span class="text-gray-500">[${time}]</span> <span class="text-amber-400 font-semibold">${stage}</span>: ${status} <span class="text-red-400 break-all">${detail}</span></div>`;
+                logEl.innerHTML += `<div class="py-1 border-b border-gray-800 text-[10px]"><span class="text-gray-500">[${time}]</span> <span class="text-amber-400 font-semibold">${stage}</span>: ${status} <span class="text-red-400 break-all font-mono font-medium">${detail}</span></div>`;
             }
         }
 
@@ -951,7 +994,7 @@ service cloud.firestore {
                 auth = getAuth(app);
                 db = getFirestore(app);
                 isFirebaseReady = true;
-                logDebug("Sistem", "Firebase berhasil diinisialisasi.");
+                logDebug("Sistem", "Berhasil dimuat.");
 
                 // Memulai proses login anonim di latar belakang
                 const initAuth = async () => {
@@ -973,7 +1016,7 @@ service cloud.firestore {
                     onAuthStateChanged(auth, (user) => {
                         if (user) {
                             currentAuthUser = user;
-                            logDebug("Autentikasi", "Pengguna Terdaftar: " + user.uid);
+                            logDebug("Autentikasi", "Pengguna Terdaftar UID: " + user.uid);
                             updateUIConnectionStatus(true);
                             setupDataListeners();
                         } else {
@@ -998,26 +1041,14 @@ service cloud.firestore {
             if (!badge) return;
 
             if (connected) {
-                badge.className = "text-[10px] px-2 py-0.5 rounded-full bg-green-100 text-green-700 font-medium flex items-center gap-1 cursor-pointer";
+                badge.className = "text-[10px] px-2.5 py-1 rounded-full bg-green-100 text-green-700 font-medium flex items-center gap-1 cursor-pointer transition-all hover:bg-green-200";
                 badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span> Terhubung (Cloud)`;
                 document.getElementById('db-warning-banner').classList.add('hidden');
             } else {
-                badge.className = "text-[10px] px-2 py-0.5 rounded-full bg-red-100 text-red-700 font-medium flex items-center gap-1 cursor-pointer";
+                badge.className = "text-[10px] px-2.5 py-1 rounded-full bg-red-100 text-red-700 font-medium flex items-center gap-1 cursor-pointer transition-all hover:bg-red-200";
                 badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-red-400"></span> Luring (Offline)`;
+                document.getElementById('db-warning-banner').classList.remove('hidden');
             }
-        }
-
-        // Injeksi aturan keamanan secara dinamis sesuai appId
-        const rulesPre = document.getElementById('db-rules-pre');
-        if (rulesPre) {
-            rulesPre.textContent = `rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    match /artifacts/\${appId}/public/data/{document=**} {
-      allow read, write: if true;
-    }
-  }
-}`;
         }
 
         // Simpan referensi ke data lokal jika Firebase tidak aktif / sedang offline
@@ -1074,8 +1105,13 @@ service cloud.firestore {
                         setupDataListeners();
                     }
                     
-                    setInterval(updateBirthdayCountdowns, 1000);
+                    // Update countdown dan tracker waktu
+                    setInterval(() => {
+                        updateBirthdayCountdowns();
+                        updateLoveJourney();
+                    }, 1000);
                     updateBirthdayCountdowns();
+                    updateLoveJourney();
                 }, 300);
             } else {
                 errorText.classList.remove('hidden');
@@ -1175,6 +1211,23 @@ service cloud.firestore {
                 `${daysI}d ${hoursI}h ${minutesI}m ${secondsI}s`;
         }
 
+        // Love Journey Tracker (Dating anniversary live count-up)
+        function updateLoveJourney() {
+            const startDate = new Date('2024-09-12T00:00:00'); // Moment dekat 12 September 2024
+            const now = new Date();
+            const diff = now - startDate;
+            
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+            
+            const loveCounterEl = document.getElementById('love-journey-counter');
+            if (loveCounterEl) {
+                loveCounterEl.innerHTML = `${days} Hari <span class="text-xs text-gray-500 font-normal">(${hours}j ${minutes}m ${seconds}s)</span>`;
+            }
+        }
+
         // Parse link Google Drive menjadi direct-link
         function parseDriveUrl(url) {
             url = url.trim();
@@ -1223,9 +1276,9 @@ service cloud.firestore {
                     messages.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
                     renderMessages(messages);
                     document.getElementById('db-warning-banner').classList.add('hidden');
+                    updateUIConnectionStatus(true);
                 }, (error) => {
-                    logDebug("Database (Chat)", "Akses Ditolak!", error.code + " - " + error.message);
-                    // Tampilkan banner peringatan kepada user agar tahu cara memperbaikinya di Firebase Console
+                    logDebug("Database (Chat)", "Gagal Membuka Obrolan!", error.code + " - " + error.message);
                     document.getElementById('db-warning-banner').classList.remove('hidden');
                     updateUIConnectionStatus(false);
                     renderMessages(fallbackChats);
@@ -1240,7 +1293,7 @@ service cloud.firestore {
                     customItems.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
                     renderGallery(customItems);
                 }, (error) => {
-                    logDebug("Database (Galeri)", "Gagal!", error.code + " - " + error.message);
+                    logDebug("Database (Galeri)", "Gagal Membuka Galeri!", error.code + " - " + error.message);
                     renderGallery(fallbackGallery.map((url, i) => ({ id: `local-${i}`, url })));
                 });
 
@@ -1267,6 +1320,7 @@ service cloud.firestore {
                     });
                 } catch (e) {
                     console.error("Gagal mengunggah foto ke database cloud: ", e);
+                    logDebug("Tambah Galeri", "Gagal!", e.message);
                 }
             } else {
                 fallbackGallery.push(finalUrl);
@@ -1284,6 +1338,7 @@ service cloud.firestore {
                     await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'gallery', id));
                 } catch (e) {
                     console.error("Gagal menghapus foto dari database cloud: ", e);
+                    logDebug("Hapus Galeri", "Gagal!", e.message);
                 }
             } else {
                 const fallbackIndex = parseInt(id.replace('local-', '')) || index;
@@ -1298,6 +1353,12 @@ service cloud.firestore {
             const grid = document.getElementById('gallery-grid');
             grid.innerHTML = '';
 
+            // Update status Kiriman secara dinamis di halaman profil
+            const statPosts = document.getElementById('profile-stat-posts');
+            if (statPosts) {
+                statPosts.innerHTML = `<strong class="text-[#4a3e3d]">${defaultGalleryItems.length + customItems.length}</strong> Kiriman`;
+            }
+
             // Render Foto Utama bawaan terlebih dahulu
             defaultGalleryItems.forEach((item, idx) => {
                 const defaultCardHTML = `
@@ -1306,7 +1367,7 @@ service cloud.firestore {
                              onerror="this.style.display='none'; document.getElementById('fb-foto-${idx}').style.display='flex';" 
                              class="w-full h-full object-cover">
                         <div id="fb-foto-${idx}" class="w-full h-full flex flex-col items-center justify-center p-4 text-center bg-[#f7ebe0]">
-                            <i data-lucide="${item.isVideo ? 'video' : 'image'}" class="w-8 h-8 text-[#dbbc9d] mb-2"></i>
+                            <i data-lucide="image" class="w-8 h-8 text-[#dbbc9d] mb-2"></i>
                             <span class="text-xs font-serif-aesthetic italic text-[#8e766e]">"${item.caption}"</span>
                             <span class="text-[10px] text-gray-400 mt-2 font-mono">[Foto ${idx + 1}]</span>
                         </div>
@@ -1474,6 +1535,7 @@ service cloud.firestore {
                     await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'chats'), messageObj);
                 } catch (e) {
                     console.error("Gagal mengirim pesan ke database cloud: ", e);
+                    logDebug("Kirim Chat", "Gagal!", e.message);
                 }
             } else {
                 fallbackChats.push(messageObj);
@@ -1643,6 +1705,15 @@ service cloud.firestore {
             }, 1500);
         }
 
+        // Control Fungsi Debug Modal
+        function openDebugModal() {
+            document.getElementById('debug-modal').classList.remove('hidden');
+        }
+
+        function closeDebugModal() {
+            document.getElementById('debug-modal').classList.add('hidden');
+        }
+
         // Hubungkan semua fungsi utama ke object window agar berjalan di runtime HTML Inline
         window.checkPassword = checkPassword;
         window.switchTab = switchTab;
@@ -1661,6 +1732,8 @@ service cloud.firestore {
         window.openClearChatModal = openClearChatModal;
         window.closeClearChatModal = closeClearChatModal;
         window.confirmClearChats = confirmClearChats;
+        window.openDebugModal = openDebugModal;
+        window.closeDebugModal = closeDebugModal;
 
     </script>
 </body>
