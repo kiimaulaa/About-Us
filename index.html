@@ -8,10 +8,10 @@
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- Google Fonts: Playfair Display & Plus Jakarta Sans -->
+    <!-- Google Fonts: Playfair Display, Plus Jakarta Sans, Caveat -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght=300;400;500;600;700&family=Playfair+Display:ital,wght=0,400;0,600;1,400&family=Caveat:wght=400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght=300;400;500;600;700&family=Playfair+Display:ital,wght=0,400;0,600;0,700;1,400&family=Caveat:wght=400;700&display=swap" rel="stylesheet">
     
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -139,7 +139,7 @@
         <!-- HEADER / NAVIGATION (INSTAGRAM STYLE TOP BAR) -->
         <header class="sticky top-0 z-40 bg-[#f7f3ed]/90 backdrop-blur-md border-b border-[#ebdcd0]">
             <div class="max-w-4xl mx-auto px-6 py-4 flex items-center justify-between">
-                <div class="flex items-center space-x-2">
+                <div class="flex items-center space-x-2 sm:space-x-3">
                     <span class="text-2xl font-serif-aesthetic font-semibold text-[#bd7a6b] tracking-wider cursor-pointer" onclick="switchTab('home')">About Us</span>
                     <span id="header-user-badge" class="text-xs px-2.5 py-0.5 rounded-full bg-[#f1e4d8] text-[#8e766e] font-medium font-serif-aesthetic flex items-center gap-1">
                         <!-- Filled by JS -->
@@ -188,7 +188,7 @@
 
                         <!-- Date & Header -->
                         <div class="flex justify-between items-center border-b border-[#ebdcd0] pb-3">
-                            <span class="font-handwritten text-[#bd7a6b] text-2xl font-bold">About Us..</span>
+                            <span class="font-handwritten text-[#bd7a6b] text-2xl sm:text-3xl font-bold">About Us..</span>
                         </div>
 
                         <!-- Main Photo Box -->
@@ -574,7 +574,7 @@
                         <input type="text" id="drive-link-input" placeholder="Tempel link Google Drive atau URL gambar/video di sini..." 
                             class="flex-grow px-4 py-3 bg-[#f7f3ed] border border-[#eaddd0] rounded-xl text-sm focus:outline-none focus:ring-1 focus:ring-[#e79e8c] text-[#4a3e3d]">
                         <button onclick="addDriveItem()" 
-                            class="bg-[#e79e8c] text-white px-6 py-3 rounded-xl text-sm font-medium hover:bg-[#db8d7b] transition-all flex items-center justify-center gap-1.5">
+                            class="bg-[#e79e8c] text-white px-6 py-3 rounded-xl text-sm font-medium hover:bg-[#db8d7b] transition-all flex items-center justify-center gap-1.5 shadow-sm">
                             <i data-lucide="plus" class="w-4 h-4"></i> Tambah
                         </button>
                     </div>
@@ -608,6 +608,7 @@
                                 <p class="text-[10px] text-emerald-600 font-medium">Aktif sekarang</p>
                             </div>
                         </div>
+                    </div>
 
                     <!-- Chat Message Thread Area -->
                     <div id="chat-thread" class="flex-grow overflow-y-auto p-4 space-y-3 bg-[#faf7f2] smooth-scroll-container">
@@ -896,7 +897,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, doc, addDoc, deleteDoc, onSnapshot, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, doc, addDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // ================= MANUAL FIREBASE CONFIGURATION FOR DEPLOYMENT =================
         const MANUAL_FIREBASE_CONFIG = {
@@ -1128,7 +1129,6 @@
             const usernameHeading = document.getElementById('profile-username-heading');
             const bioContainer = document.getElementById('profile-bio-container');
             const partnerAvatar = document.getElementById('dm-partner-avatar');
-            const partnerName = document.getElementById('dm-partner-[#4a3e3d]');
             const partnerNameEl = document.getElementById('dm-partner-name');
             const navInitial = document.getElementById('nav-profile-initial');
 
@@ -1146,6 +1146,7 @@
                         </p>
                         <p class="flex items-center justify-center sm:justify-start gap-1 text-xs">
                             <i data-lucide="calendar" class="w-3.5 h-3.5"></i> Ulang Tahun ayyaa: <span class="font-medium">12 September 2008</span>
+                        </p>
                     `;
                 }
                 if (partnerAvatar) partnerAvatar.innerHTML = `🎀`;
@@ -1541,22 +1542,6 @@
 
             chatInput.value = '';
         }
-            renderMessages([]);
-
-        function openClearChatModal() {
-            const modal = document.getElementById('clear-chat-modal');
-            if (modal) modal.classList.remove('hidden');
-        }
-
-        function closeClearChatModal() {
-            const modal = document.getElementById('clear-chat-modal');
-            if (modal) modal.classList.add('hidden');
-        }
-
-        async function confirmClearChats() {
-            closeClearChatModal();
-            await clearAllChats();
-        }
 
         // Render Thread DM dalam gaya Instagram
         function renderMessages(messagesList = []) {
@@ -1702,9 +1687,6 @@
         window.closeCloudConfigModal = closeCloudConfigModal;
         window.saveCloudConfig = saveCloudConfig;
         window.resetCloudConfig = resetCloudConfig;
-        window.openClearChatModal = openClearChatModal;
-        window.closeClearChatModal = closeClearChatModal;
-        window.confirmClearChats = confirmClearChats;
         window.openDebugModal = openDebugModal;
         window.closeDebugModal = closeDebugModal;
 
