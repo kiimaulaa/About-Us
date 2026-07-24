@@ -11,7 +11,7 @@
     <!-- Google Fonts: Playfair Display & Plus Jakarta Sans -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght=300;400;500;600&family=Playfair+Display:ital,wght=0,400;0,600;1,400&family=Caveat:wght=400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght=300;400;500;600;700&family=Playfair+Display:ital,wght=0,400;0,600;1,400&family=Caveat:wght=400;700&display=swap" rel="stylesheet">
     
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -68,6 +68,18 @@
             scroll-behavior: smooth;
             -webkit-overflow-scrolling: touch;
         }
+        /* Bubble chat Instagram style */
+        .chat-bubble-me {
+            background: linear-gradient(135deg, #e79e8c 0%, #bd7a6b 100%);
+            color: white;
+            border-radius: 20px 20px 4px 20px;
+        }
+        .chat-bubble-other {
+            background-color: #ffffff;
+            color: #4a3e3d;
+            border: 1px solid #ebdcd0;
+            border-radius: 20px 20px 20px 4px;
+        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col overflow-x-hidden selection:bg-[#e79e8c] selection:text-white pb-32">
@@ -75,33 +87,48 @@
     <!-- Audio Element untuk memutar musik -->
     <audio id="global-audio" loop></audio>
 
-    <!-- ================= PASSWORD GATE / LANDING ================= -->
+    <!-- ================= INSTAGRAM LOGIN GATE ================= -->
     <div id="password-gate" class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-[#f7f3ed] px-6">
-        <div id="password-card" class="max-w-md w-full bg-[#fcfaf7] border border-[#eaddd0] rounded-3xl p-8 shadow-sm text-center space-y-8 fade-in">
-            <!-- Dekorasi Notebook Ring di bagian atas gate -->
+        <div id="password-card" class="max-w-sm w-full bg-[#fcfaf7] border border-[#eaddd0] rounded-3xl p-8 shadow-sm text-center space-y-6 fade-in relative">
+            <!-- Ring Binder Atas Decorative -->
             <div class="flex justify-center space-x-2 -mt-4 mb-2">
-                <span class="w-3 h-3 rounded-full bg-[#cbd5e1] inline-block shadow-inner"></span>
-                <span class="w-3 h-3 rounded-full bg-[#cbd5e1] inline-block shadow-inner"></span>
-                <span class="w-3 h-3 rounded-full bg-[#cbd5e1] inline-block shadow-inner"></span>
+                <span class="w-2.5 h-2.5 rounded-full bg-[#cbd5e1] inline-block shadow-inner"></span>
+                <span class="w-2.5 h-2.5 rounded-full bg-[#cbd5e1] inline-block shadow-inner"></span>
+                <span class="w-2.5 h-2.5 rounded-full bg-[#cbd5e1] inline-block shadow-inner"></span>
             </div>
             
-            <div class="space-y-3">
-                <h1 class="text-3xl font-serif-aesthetic text-[#bd7a6b] font-semibold tracking-wide">About Us</h1>
-                <p class="text-sm text-gray-500 font-light">Masukkin pin dulu yaa..</p>
+            <div class="space-y-2">
+                <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-[#e79e8c]/20 text-[#bd7a6b] mb-1">
+                    <i data-lucide="instagram" class="w-6 h-6"></i>
+                </div>
+                <h1 class="text-3xl font-serif-aesthetic text-[#bd7a6b] font-semibold tracking-wider">Couplegram</h1>
+                <p class="text-xs text-gray-500 font-light">Masuk ke akunmu dulu yaa..</p>
             </div>
 
-            <div class="space-y-4">
-                <input type="password" id="password-input" placeholder="******" 
-                    class="w-full px-5 py-3 rounded-xl border border-[#e3d5c8] bg-[#fbf9f6] text-center tracking-widest focus:ring-2 focus:ring-[#e79e8c] focus:outline-none transition-all placeholder:tracking-normal placeholder:text-gray-300 text-lg">
+            <!-- Login Form -->
+            <div class="space-y-3.5 text-left">
+                <div>
+                    <label class="block text-[11px] font-semibold uppercase tracking-wider text-gray-500 mb-1 ml-1">Username</label>
+                    <input type="text" id="login-username" placeholder="ikii / ayyaa" 
+                        class="w-full px-4 py-3 rounded-xl border border-[#e3d5c8] bg-[#fbf9f6] text-sm focus:ring-2 focus:ring-[#e79e8c] focus:outline-none transition-all placeholder:text-gray-300 text-[#4a3e3d]">
+                </div>
+
+                <div>
+                    <label class="block text-[11px] font-semibold uppercase tracking-wider text-gray-500 mb-1 ml-1">Password</label>
+                    <input type="password" id="login-password" placeholder="••••" 
+                        class="w-full px-4 py-3 rounded-xl border border-[#e3d5c8] bg-[#fbf9f6] text-sm focus:ring-2 focus:ring-[#e79e8c] focus:outline-none transition-all placeholder:text-gray-300 text-[#4a3e3d]">
+                </div>
+
                 <button onclick="checkPassword()" 
-                    class="w-full bg-[#e79e8c] text-white py-3 rounded-xl font-medium tracking-wide shadow-sm hover:bg-[#db8d7b] transition-all transform hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-2">
-                    Login
+                    class="w-full mt-2 bg-[#e79e8c] text-white py-3 rounded-xl font-medium tracking-wide shadow-sm hover:bg-[#db8d7b] transition-all transform hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-2 text-sm">
+                    Masuk <i data-lucide="log-in" class="w-4 h-4"></i>
                 </button>
-                <p id="password-error" class="text-xs text-red-400 font-light hidden">Pin-nya salah boloo 🥺</p>
+                
+                <p id="password-error" class="text-xs text-red-400 font-light text-center hidden pt-1">Username atau password salah boloo 🥺</p>
             </div>
 
-            <div class="text-xs text-gray-400 pt-4 border-t border-[#f3eae1] font-light">
-                All About Us
+            <div class="text-[11px] text-gray-400 pt-4 border-t border-[#f3eae1] font-light">
+                All About Us • Private Account
             </div>
         </div>
     </div>
@@ -114,7 +141,9 @@
             <div class="max-w-4xl mx-auto px-6 py-4 flex items-center justify-between">
                 <div class="flex items-center space-x-2">
                     <span class="text-2xl font-serif-aesthetic font-semibold text-[#bd7a6b] tracking-wider cursor-pointer" onclick="switchTab('home')">About Us</span>
-                    <span class="text-xs px-2 py-0.5 rounded-full bg-[#f1e4d8] text-[#8e766e] font-medium font-serif-aesthetic">Love</span>
+                    <span id="header-user-badge" class="text-xs px-2.5 py-0.5 rounded-full bg-[#f1e4d8] text-[#8e766e] font-medium font-serif-aesthetic flex items-center gap-1">
+                        <!-- Filled by JS -->
+                    </span>
                     
                     <!-- Indikator Koneksi Realtime -->
                     <span id="db-status-badge" class="text-[10px] px-2.5 py-1 rounded-full bg-red-100 text-red-700 font-medium flex items-center gap-1 cursor-pointer transition-all hover:bg-red-200" onclick="openDebugModal()" title="Klik untuk cek status error detail">
@@ -321,7 +350,7 @@
                             Buka Memoar <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
                         </span>
                     </div>
-                
+
                     <!-- LAGU 8 -->
                     <div onclick="openMusicPopup('Shape of My Heart', 'Yogyakarta', 'Untuk yang menyenangkan, semoga dia tidak pernah berubah. Terima kasih sudah datang sebagai tawa, senang, dan suka. -3726 mdpl.', 'sparkles', 'https://github.com/kiimaulaa/lagu-web/raw/refs/heads/main/Backstreet%20Boys%20-%20Shape%20Of%20My%20Heart%20(Official%20HD%20Video)%20%5BOT5msu-dap8%5D.mp3', 'https://lh3.googleusercontent.com/d/1bu-fNJqZcA5XmYMlDh9K5bJ8KBEL_DHS')"
                         class="flex items-center justify-between p-4 bg-[#fcfaf7] hover:bg-[#fbf4ed] border border-[#eaddd0] rounded-2xl cursor-pointer transition-all group shadow-sm hover:shadow">
@@ -355,7 +384,7 @@
                             Buka Memoar <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
                         </span>
                     </div>
-            
+
                     <!-- LAGU 10 -->
                     <div onclick="openMusicPopup('Untuk Perempuan Yang Sedang Di Pelukan', 'Yogyakarta', 'Terimakasih selalu untuk genggaman dan pelukan hangatnyaa. nayyara sayangg...', 'sparkles', 'https://github.com/kiimaulaa/lagu-web/raw/refs/heads/main/Untuk%20Perempuan%20Yang%20Sedang%20Di%20Pelukan%20%5BjAYviJQYcAo%5D.mp3', 'https://lh3.googleusercontent.com/d/1sbh1N50j0ixsqv96yYEG_5RB1Q_Qvm_2')"
                         class="flex items-center justify-between p-4 bg-[#fcfaf7] hover:bg-[#fbf4ed] border border-[#eaddd0] rounded-2xl cursor-pointer transition-all group shadow-sm hover:shadow">
@@ -558,98 +587,85 @@
                 </div>
             </section>
 
-            <!-- ================= MESSAGES CHAT SECTION ================= -->
+            <!-- ================= MESSAGES CHAT SECTION (INSTAGRAM DM STYLE) ================= -->
             <section id="chat-sec" class="hidden space-y-6 fade-in">
-                <!-- Header Direct Messages dengan tombol Bersihkan Obrolan -->
-                <div class="text-center space-y-2 relative">
-                    <h2 class="text-2xl font-serif-aesthetic font-semibold text-[#4a3e3d]">Direct Messages</h2>
-                    <button onclick="openClearChatModal()" class="absolute right-2 top-0 text-red-400 hover:text-red-500 p-1.5 rounded-xl transition-all" title="Bersihkan Obrolan">
-                        <i data-lucide="trash-2" class="w-5 h-5"></i>
-                    </button>
-                </div>
-
                 <!-- Chat Box Container -->
-                <div class="bg-[#fcfaf7] border border-[#eaddd0] rounded-3xl p-6 shadow-sm flex flex-col h-[500px]">
-                    <!-- Header Chat: Switch Sender -->
-                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-[#ebdcd0]">
+                <div class="bg-[#fcfaf7] border border-[#eaddd0] rounded-3xl shadow-sm flex flex-col h-[560px] overflow-hidden">
+                    
+                    <!-- Instagram Header Chat Bar -->
+                    <div class="bg-white px-5 py-3.5 border-b border-[#ebdcd0] flex items-center justify-between">
                         <div class="flex items-center space-x-3">
-                            <span class="w-2.5 h-2.5 rounded-full bg-green-400 animate-pulse"></span>
-                            <span class="text-sm font-medium text-gray-600">Sedang mengirim sebagai:</span>
+                            <div class="relative">
+                                <div id="dm-partner-avatar" class="w-10 h-10 rounded-full bg-[#bd7a6b] text-white flex items-center justify-center font-bold text-sm shadow-xs">
+                                    <!-- Dynamic Partner Avatar -->
+                                </div>
+                                <span class="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-emerald-500 border-2 border-white"></span>
+                            </div>
+                            <div>
+                                <h3 id="dm-partner-name" class="font-semibold text-[#4a3e3d] text-sm flex items-center gap-1">
+                                    <!-- Partner Name -->
+                                </h3>
+                                <p class="text-[10px] text-emerald-600 font-medium">Aktif sekarang</p>
+                            </div>
                         </div>
-                        
-                        <!-- Toggle Switch Sender -->
-                        <div class="inline-flex bg-[#f1e4d8] rounded-xl p-1 text-sm">
-                            <button id="sender-ayyaa" onclick="setSender('ayyaa')" 
-                                class="px-4 py-1.5 rounded-lg font-medium transition-all bg-[#e79e8c] text-white shadow-sm">
-                                🎀 ayyaa
-                            </button>
-                            <button id="sender-ikii" onclick="setSender('ikii')" 
-                                class="px-4 py-1.5 rounded-lg font-medium transition-all text-[#8e766e] hover:text-[#bd7a6b]">
-                                🧸 ikii
+
+                        <!-- Action Icons -->
+                        <div class="flex items-center space-x-3 text-[#bd7a6b]">
+                            <button onclick="openClearChatModal()" class="p-2 hover:bg-[#f7f3ed] rounded-full transition-colors text-red-400 hover:text-red-500" title="Bersihkan Obrolan">
+                                <i data-lucide="trash-2" class="w-5 h-5"></i>
                             </button>
                         </div>
                     </div>
 
                     <!-- Chat Message Thread Area -->
-                    <div id="chat-thread" class="flex-grow overflow-y-auto py-4 space-y-4 pr-1 smooth-scroll-container">
-                        <!-- Chat default sepenuhnya kosong dan siap digunakan -->
+                    <div id="chat-thread" class="flex-grow overflow-y-auto p-4 space-y-3 bg-[#faf7f2] smooth-scroll-container">
+                        <!-- Chat messages rendered dynamically -->
                     </div>
 
                     <!-- Warning Banner Database Cloud -->
-                    <div id="db-warning-banner" class="hidden bg-amber-50 border border-amber-200 text-amber-800 text-xs rounded-xl p-3.5 space-y-1 mb-4 mx-2">
-                        <p class="font-bold flex items-center gap-1.5">
-                            <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-600"></i> Database Cloud Belum Siap / Luring
+                    <div id="db-warning-banner" class="hidden bg-amber-50 border-t border-amber-200 text-amber-800 text-xs p-3 space-y-1">
+                        <p class="font-bold flex items-center gap-1.5 text-[11px]">
+                            <i data-lucide="alert-triangle" class="w-3.5 h-3.5 text-amber-600"></i> Mode Luring (Tersimpan di HP ini)
                         </p>
-                        <p class="text-gray-600 leading-relaxed font-light">
-                            Pesan hanya tersimpan di browser ini saja. Agar HP kii dan HP ayyaa bisa saling tersinkron secara realtime, pastikan Anda telah mengubah <strong>Aturan Keamanan (Rules) Firestore</strong> Anda di Firebase Console menjadi:
-                        </p>
-                        <pre id="db-rules-pre" class="bg-gray-800 text-gray-200 p-2 rounded-lg font-mono text-[10px] mt-1 overflow-x-auto">
-rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    match /artifacts/{appId}/public/data/{document=**} {
-      allow read, write: if true;
-    }
-  }
-}</pre>
                     </div>
 
-                    <!-- Chat Input Field -->
-                    <div class="pt-4 border-t border-[#ebdcd0] flex gap-2">
-                        <input type="text" id="chat-input" placeholder="Tulis pesan rahasiamu di sini..." 
-                            class="flex-grow px-4 py-3 bg-[#f7f3ed] border border-[#eaddd0] rounded-xl text-sm focus:outline-none focus:ring-1 focus:ring-[#e79e8c] text-[#4a3e3d]">
-                        <button onclick="sendChatMessage()" 
-                            class="bg-[#e79e8c] text-white px-5 rounded-xl hover:bg-[#db8d7b] transition-all flex items-center justify-center">
-                            <i data-lucide="send" class="w-4 h-4"></i>
-                        </button>
+                    <!-- Instagram Chat Input Field -->
+                    <div class="p-3 bg-white border-t border-[#ebdcd0]">
+                        <div class="flex items-center bg-[#f7f3ed] border border-[#eaddd0] rounded-full px-4 py-1.5 focus-within:ring-2 focus-within:ring-[#e79e8c] transition-all">
+                            <input type="text" id="chat-input" placeholder="Kirim pesan..." 
+                                class="flex-grow bg-transparent text-sm text-[#4a3e3d] focus:outline-none py-1.5">
+                            <button onclick="sendChatMessage()" 
+                                class="text-[#bd7a6b] font-semibold hover:text-[#e79e8c] text-sm pl-2 transition-colors flex items-center gap-1">
+                                Send
+                            </button>
+                        </div>
                     </div>
                 </div>
             </section>
 
-            <!-- ================= NEW PROFILE SECTION (INSTAGRAM STYLE) ================= -->
+            <!-- ================= PROFILE SECTION (CUSTOM INSTAGRAM PROFILE) ================= -->
             <section id="profile-sec" class="hidden space-y-6 fade-in">
                 <!-- Profile Header Card -->
                 <div class="bg-[#fcfaf7] border border-[#eaddd0] rounded-3xl p-6 sm:p-8 shadow-sm space-y-6">
                     <div class="flex flex-col sm:flex-row items-center gap-6 pb-6 border-b border-[#f3eae1]">
-                        <!-- Instagram Avatar Style -->
+                        <!-- Dynamic User Avatar -->
                         <div class="relative flex-shrink-0">
-                            <!-- Dual Overlapping Circles for Couple Profile -->
-                            <div class="w-24 h-24 rounded-full bg-gradient-to-tr from-amber-400 to-[#bd7a6b] p-1 shadow-md">
-                                <div class="w-full h-full rounded-full bg-white flex items-center justify-center overflow-hidden relative">
-                                    <span class="font-serif-aesthetic text-xl font-bold text-[#bd7a6b]">A & I</span>
+                            <div class="w-24 h-24 rounded-full bg-gradient-to-tr from-amber-400 via-[#e79e8c] to-[#bd7a6b] p-1 shadow-md">
+                                <div id="profile-avatar-circle" class="w-full h-full rounded-full bg-white flex items-center justify-center overflow-hidden font-serif-aesthetic text-2xl font-bold text-[#bd7a6b]">
+                                    <!-- Dynamic Avatar Letter -->
                                 </div>
                             </div>
-                            <div class="absolute -bottom-1 -right-1 bg-red-400 text-white rounded-full p-1.5 border-2 border-white">
+                            <div class="absolute -bottom-1 -right-1 bg-red-400 text-white rounded-full p-1.5 border-2 border-white shadow-xs">
                                 <i data-lucide="heart" class="w-3.5 h-3.5 fill-current"></i>
                             </div>
                         </div>
 
-                        <!-- Stats & Bio -->
+                        <!-- Stats & Dynamic Profile Info -->
                         <div class="flex-grow text-center sm:text-left space-y-3">
                             <div class="flex flex-col sm:flex-row sm:items-center gap-2">
-                                <h2 class="text-xl font-bold text-[#4a3e3d]">perfectcouple_</h2>
-                                <span class="inline-flex items-center gap-1 bg-[#e79e8c]/20 text-[#bd7a6b] px-2.5 py-0.5 rounded-full text-xs font-semibold">
-                                    Official Couple <i data-lucide="badge-check" class="w-3.5 h-3.5 fill-current"></i>
+                                <h2 id="profile-username-heading" class="text-xl font-bold text-[#4a3e3d]">username</h2>
+                                <span class="inline-flex items-center gap-1 bg-[#e79e8c]/20 text-[#bd7a6b] px-2.5 py-0.5 rounded-full text-xs font-semibold self-center sm:self-auto">
+                                    Official Account <i data-lucide="badge-check" class="w-3.5 h-3.5 fill-current"></i>
                                 </span>
                             </div>
 
@@ -661,14 +677,8 @@ service cloud.firestore {
                             </div>
 
                             <!-- Instagram Bio Layout -->
-                            <div class="text-sm space-y-1 text-gray-600">
-                                <p class="font-semibold text-[#4a3e3d]">Perfect Couple</p>
-                                <p class="text-xs italic text-[#bd7a6b]">"Ada orang yang hadir sebentar lalu pergi, and ada kamu yang datang lalu menjadi rumah."— 0 MDPL</p>
-                                <p class="flex items-center justify-center sm:justify-start gap-1 text-xs">
-                                    <i data-lucide="calendar" class="w-3.5 h-3.5"></i> Lahir ayyaa: <span class="font-medium">12 September 2008</span></p>
-                                <p class="flex items-center justify-center sm:justify-start gap-1 text-xs">
-                                    <i data-lucide="calendar" class="w-3.5 h-3.5"></i> Lahir ikii: <span class="font-medium">19 September 2008</span>
-                                </p>
+                            <div id="profile-bio-container" class="text-sm space-y-1 text-gray-600">
+                                <!-- Dynamic bio loaded via JavaScript -->
                             </div>
                         </div>
                     </div>
@@ -698,10 +708,14 @@ service cloud.firestore {
                         </div>
                     </div>
 
-                    <!-- Cloud Sync Settings Button -->
-                    <div class="text-center pt-4">
-                        <button onclick="openCloudConfigModal()" class="inline-flex items-center gap-1.5 text-xs text-[#bd7a6b] bg-[#e79e8c]/10 hover:bg-[#e79e8c]/20 px-4 py-2 rounded-xl font-medium transition-all">
-                            <i data-lucide="settings" class="w-3.5 h-3.5"></i> Hubungkan Database (Cloud Sync)
+                    <!-- Buttons: Cloud Config & Logout -->
+                    <div class="flex flex-wrap justify-center gap-3 pt-4 border-t border-[#f3eae1]">
+                        <button onclick="openCloudConfigModal()" class="inline-flex items-center gap-1.5 text-xs text-[#bd7a6b] bg-[#e79e8c]/10 hover:bg-[#e79e8c]/20 px-4 py-2.5 rounded-xl font-medium transition-all">
+                            <i data-lucide="settings" class="w-3.5 h-3.5"></i> Pengaturan Cloud
+                        </button>
+
+                        <button onclick="logout()" class="inline-flex items-center gap-1.5 text-xs text-red-500 bg-red-50 hover:bg-red-100 px-4 py-2.5 rounded-xl font-medium transition-all">
+                            <i data-lucide="log-out" class="w-3.5 h-3.5"></i> Keluar (Logout)
                         </button>
                     </div>
                 </div>
@@ -730,19 +744,29 @@ service cloud.firestore {
                             <!-- Pesan error dari server akan masuk di sini secara otomatis -->
                         </div>
                     </div>
-
-                    <div class="bg-amber-50 border border-amber-200 text-amber-900 p-3.5 rounded-xl space-y-2">
-                        <p class="font-bold text-[11px] flex items-center gap-1"><i data-lucide="sparkles" class="w-3.5 h-3.5 text-amber-600"></i> Solusi Umum Penyebab Offline:</p>
-                        <ol class="list-decimal list-inside space-y-1 text-[11px] text-gray-700">
-                            <li><strong>Aktifkan Anonymous Auth:</strong> Di Firebase Console, buka menu <strong class="text-amber-800">Authentication</strong> -> <strong class="text-amber-800">Sign-in method</strong> -> Aktifkan "Anonymous". Jika ini tidak aktif, kamu tidak akan bisa login.</li>
-                            <li><strong>Buat Firestore Database:</strong> Pastikan kamu sudah menekan tombol "Create Database" di menu Firestore Firebase Console.</li>
-                            <li><strong>Atur Security Rules:</strong> Pastikan rules database-mu mengizinkan akses tulis dan baca untuk jalur `/artifacts/...`</li>
-                        </ol>
-                    </div>
                 </div>
                 <div class="pt-2 flex-shrink-0">
                     <button onclick="closeDebugModal()" class="w-full bg-[#e79e8c] hover:bg-[#db8d7b] text-white py-2.5 rounded-xl text-sm font-medium transition-all shadow-sm">
                         Mengerti, Tutup Laporan
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= CLEAR CHAT MODAL ================= -->
+        <div id="clear-chat-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-6 hidden transition-all duration-300">
+            <div class="max-w-xs w-full bg-[#fcfaf7] border border-[#eaddd0] rounded-3xl p-6 shadow-xl fade-in text-center space-y-4">
+                <div class="w-12 h-12 bg-red-100 text-red-500 rounded-full flex items-center justify-center mx-auto">
+                    <i data-lucide="trash-2" class="w-6 h-6"></i>
+                </div>
+                <h3 class="text-base font-semibold text-[#4a3e3d]">Bersihkan Obrolan?</h3>
+                <p class="text-xs text-gray-500 leading-relaxed">Semua pesan antara ikii dan ayyaa akan dihapus. Langkah ini tidak dapat dibatalkan.</p>
+                <div class="flex gap-2 pt-2">
+                    <button onclick="confirmClearChats()" class="flex-grow bg-red-500 hover:bg-red-600 text-white py-2.5 rounded-xl text-xs font-semibold transition-all">
+                        Hapus Semua
+                    </button>
+                    <button onclick="closeClearChatModal()" class="px-4 bg-gray-200 hover:bg-gray-300 text-gray-700 py-2.5 rounded-xl text-xs font-semibold transition-all">
+                        Batal
                     </button>
                 </div>
             </div>
@@ -889,7 +913,7 @@ service cloud.firestore {
             <!-- Profile Tab Button (Insta Profile Page) -->
             <button id="nav-profile" onclick="switchTab('profile')" class="flex flex-col items-center justify-center text-[#8e766e] hover:text-[#bd7a6b] transition-all transform hover:scale-105" title="Profil Kita">
                 <div class="w-6 h-6 rounded-full border border-current flex items-center justify-center overflow-hidden">
-                    <span class="text-[9px] font-bold font-serif-aesthetic">AI</span>
+                    <span id="nav-profile-initial" class="text-[9px] font-bold font-serif-aesthetic">AI</span>
                 </div>
             </button>
         </div>
@@ -917,11 +941,14 @@ service cloud.firestore {
         let isFirebaseReady = false;
         let currentAuthUser = null;
 
-        // Referensi pembersih listener realtime untuk mencegah duplikasi render
+        // User Account Logged-In State
+        let currentUser = localStorage.getItem('couplegram_current_user') || null; // 'ikii' or 'ayyaa'
+
+        // Referensi pembersih listener realtime
         let unsubscribeChats = null;
         let unsubscribeGallery = null;
 
-        // Debug Logger untuk mendeteksi error di layar HP secara langsung
+        // Debug Logger
         function logDebug(stage, status, detail = "") {
             console.log(`[DEBUG] ${stage}: ${status} ${detail}`);
             const logEl = document.getElementById('debug-log-list');
@@ -931,7 +958,6 @@ service cloud.firestore {
             }
         }
 
-        // Resolusi konfigurasi Firebase yang akan digunakan tanpa error deklarasi ganda
         let firebaseConfig = null;
 
         if (typeof __firebase_config !== 'undefined' && __firebase_config) {
@@ -941,7 +967,6 @@ service cloud.firestore {
                 console.error("Gagal melakukan inisialisasi platform Firebase: ", e);
             }
         } else {
-            // Ambil dari localStorage jika pengguna telah menyimpannya via UI pengaturan langsung di peramban
             const savedConfig = localStorage.getItem('custom_firebase_config');
             if (savedConfig) {
                 try {
@@ -954,7 +979,6 @@ service cloud.firestore {
             }
         }
 
-        // Jalankan Autentikasi terlebih dahulu secara aman (Aturan 3)
         if (firebaseConfig) {
             try {
                 logDebug("Sistem", "Menginisialisasi Firebase...");
@@ -964,7 +988,6 @@ service cloud.firestore {
                 isFirebaseReady = true;
                 logDebug("Sistem", "Berhasil dimuat.");
 
-                // Memulai proses login anonim di latar belakang
                 const initAuth = async () => {
                     try {
                         logDebug("Autentikasi", "Mencoba masuk...");
@@ -979,14 +1002,15 @@ service cloud.firestore {
                     }
                 };
 
-                // Pantau perubahan status setelah inisialisasi login selesai
                 initAuth().then(() => {
                     onAuthStateChanged(auth, (user) => {
                         if (user) {
                             currentAuthUser = user;
                             logDebug("Autentikasi", "Pengguna Terdaftar UID: " + user.uid);
                             updateUIConnectionStatus(true);
-                            setupDataListeners();
+                            if (currentUser) {
+                                setupDataListeners();
+                            }
                         } else {
                             logDebug("Autentikasi", "Status berubah menjadi keluar.");
                             updateUIConnectionStatus(false);
@@ -1003,7 +1027,6 @@ service cloud.firestore {
             updateUIConnectionStatus(false);
         }
 
-        // Mengubah tampilan indikator koneksi database realtime di header
         function updateUIConnectionStatus(connected) {
             const badge = document.getElementById('db-status-badge');
             if (!badge) return;
@@ -1011,25 +1034,21 @@ service cloud.firestore {
             if (connected) {
                 badge.className = "text-[10px] px-2.5 py-1 rounded-full bg-green-100 text-green-700 font-medium flex items-center gap-1 cursor-pointer transition-all hover:bg-green-200";
                 badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span> Terhubung (Cloud)`;
-                document.getElementById('db-warning-banner').classList.add('hidden');
+                const warn = document.getElementById('db-warning-banner');
+                if (warn) warn.classList.add('hidden');
             } else {
                 badge.className = "text-[10px] px-2.5 py-1 rounded-full bg-red-100 text-red-700 font-medium flex items-center gap-1 cursor-pointer transition-all hover:bg-red-200";
                 badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-red-400"></span> Luring (Offline)`;
-                document.getElementById('db-warning-banner').classList.remove('hidden');
+                const warn = document.getElementById('db-warning-banner');
+                if (warn) warn.classList.remove('hidden');
             }
         }
 
-        // Simpan referensi ke data lokal jika Firebase tidak aktif / sedang offline
         let fallbackChats = JSON.parse(localStorage.getItem('ayyaa_ikii_chat')) || [];
         let fallbackGallery = JSON.parse(localStorage.getItem('ayyaa_ikii_gallery_custom')) || [];
 
-        // Inisialisasi ikon Lucide secara global
         lucide.createIcons();
 
-        // Variabel Pengirim Pesan Default
-        let currentSender = 'ayyaa';
-
-        // Daftar Foto Bawaan Utama agar tidak hilang
         const defaultGalleryItems = [
             {
                 url: "https://lh3.googleusercontent.com/d/1TvvkzFgSApHrYu-hMQMtiYZt9vZP-N-j",
@@ -1039,7 +1058,6 @@ service cloud.firestore {
             }
         ];
 
-        // Antarmuka pencegah XSS input
         function escapeHTML(str) {
             return str.replace(/[&<>'"]/g, 
                 tag => ({
@@ -1052,54 +1070,138 @@ service cloud.firestore {
             );
         }
 
-        // Buka Jurnal Kita (Check Password Gate)
+        // Auto Login if session exists
+        window.addEventListener('DOMContentLoaded', () => {
+            if (currentUser === 'ikii' || currentUser === 'ayyaa') {
+                document.getElementById('password-gate').classList.add('hidden');
+                document.getElementById('main-content').classList.remove('hidden');
+                updateProfileView();
+                switchTab('home');
+                setupDataListeners();
+
+                setInterval(() => {
+                    updateBirthdayCountdowns();
+                }, 1000);
+                updateBirthdayCountdowns();
+            }
+        });
+
+        // Instagram System Login Check
         async function checkPassword() {
-            const passwordInput = document.getElementById('password-input').value;
+            const usernameInput = document.getElementById('login-username').value.trim().toLowerCase();
+            const passwordInput = document.getElementById('login-password').value.trim();
             const errorText = document.getElementById('password-error');
             const passwordGate = document.getElementById('password-gate');
             const passwordCard = document.getElementById('password-card');
             const mainContent = document.getElementById('main-content');
 
-            if (passwordInput === '092008') {
+            let isValid = false;
+
+            if (usernameInput === 'ikii' && passwordInput === '1909') {
+                currentUser = 'ikii';
+                isValid = true;
+            } else if (usernameInput === 'ayyaa' && passwordInput === '1209') {
+                currentUser = 'ayyaa';
+                isValid = true;
+            }
+
+            if (isValid) {
+                localStorage.setItem('couplegram_current_user', currentUser);
+                errorText.classList.add('hidden');
+                
                 passwordGate.style.opacity = '0';
                 passwordGate.style.transition = 'opacity 0.3s ease-out';
-                setTimeout(async () => {
+                
+                setTimeout(() => {
                     passwordGate.classList.add('hidden');
                     mainContent.classList.remove('hidden');
+                    updateProfileView();
                     switchTab('home');
 
-                    // Sinkronisasi data awal offline/cadangan jika Firebase gagal/belum merespon
-                    if (!isFirebaseReady || !currentAuthUser) {
-                        setupDataListeners();
-                    }
+                    setupDataListeners();
                     
-                    // Update countdown dan tracker waktu
                     setInterval(() => {
                         updateBirthdayCountdowns();
-                        updateLoveJourney();
                     }, 1000);
                     updateBirthdayCountdowns();
-                    updateLoveJourney();
                 }, 300);
             } else {
                 errorText.classList.remove('hidden');
-                passwordCard.classList.add('shake', 'border-red-400');
-                const inputElement = document.getElementById('password-input');
-                inputElement.classList.add('border-red-400', 'ring-2', 'ring-red-300');
-                
+                passwordCard.classList.add('shake');
                 setTimeout(() => {
-                    passwordCard.classList.remove('shake', 'border-red-400');
-                    inputElement.classList.remove('border-red-400', 'ring-2', 'ring-red-300');
-                }, 1000);
+                    passwordCard.classList.remove('shake');
+                }, 800);
             }
         }
 
-        // Hubungkan Input Password ke Enter Key
-        document.getElementById('password-input').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                checkPassword();
-            }
+        function logout() {
+            localStorage.removeItem('couplegram_current_user');
+            currentUser = null;
+            window.location.reload();
+        }
+
+        // Enter key event listeners for login
+        document.getElementById('login-username').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') checkPassword();
         });
+        document.getElementById('login-password').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') checkPassword();
+        });
+
+        // Update Profile View based on Current User
+        function updateProfileView() {
+            const headerBadge = document.getElementById('header-user-badge');
+            const avatarCircle = document.getElementById('profile-avatar-circle');
+            const usernameHeading = document.getElementById('profile-username-heading');
+            const bioContainer = document.getElementById('profile-bio-container');
+            const partnerAvatar = document.getElementById('dm-partner-avatar');
+            const partnerName = document.getElementById('dm-partner-[#4a3e3d]');
+            const partnerNameEl = document.getElementById('dm-partner-name');
+            const navInitial = document.getElementById('nav-profile-initial');
+
+            if (currentUser === 'ikii') {
+                if (headerBadge) headerBadge.innerHTML = `🧸 ikii`;
+                if (avatarCircle) avatarCircle.innerHTML = `🧸`;
+                if (usernameHeading) usernameHeading.innerHTML = `ikii_19`;
+                if (navInitial) navInitial.innerHTML = `I`;
+                if (bioContainer) {
+                    bioContainer.innerHTML = `
+                        <p class="font-semibold text-[#4a3e3d]">Ikii 🧸</p>
+                        <p class="text-xs italic text-[#bd7a6b]">"Ada orang yang hadir sebentar lalu pergi, and ada kamu yang datang lalu menjadi rumah." — 1909</p>
+                        <p class="flex items-center justify-center sm:justify-start gap-1 text-xs pt-1">
+                            <i data-lucide="calendar" class="w-3.5 h-3.5"></i> Ulang Tahun: <span class="font-medium">19 September 2008</span>
+                        </p>
+                        <p class="flex items-center justify-center sm:justify-start gap-1 text-xs">
+                            <i data-lucide="heart" class="w-3.5 h-3.5 text-red-400 fill-current"></i> Pasangan: <span class="font-medium text-[#bd7a6b]">Ayyaa 🎀</span>
+                        </p>
+                    `;
+                }
+                if (partnerAvatar) partnerAvatar.innerHTML = `🎀`;
+                if (partnerNameEl) partnerNameEl.innerHTML = `ayyaa_12 <i data-lucide="badge-check" class="w-3.5 h-3.5 text-[#bd7a6b] fill-current"></i>`;
+
+            } else if (currentUser === 'ayyaa') {
+                if (headerBadge) headerBadge.innerHTML = `🎀 ayyaa`;
+                if (avatarCircle) avatarCircle.innerHTML = `🎀`;
+                if (usernameHeading) usernameHeading.innerHTML = `ayyaa_12`;
+                if (navInitial) navInitial.innerHTML = `A`;
+                if (bioContainer) {
+                    bioContainer.innerHTML = `
+                        <p class="font-semibold text-[#4a3e3d]">Ayyaa 🎀</p>
+                        <p class="text-xs italic text-[#bd7a6b]">"Diantara milyaran bintang, kamu adalah alasan favoritku untuk tersenyum." — 1209</p>
+                        <p class="flex items-center justify-center sm:justify-start gap-1 text-xs pt-1">
+                            <i data-lucide="calendar" class="w-3.5 h-3.5"></i> Ulang Tahun: <span class="font-medium">12 September 2008</span>
+                        </p>
+                        <p class="flex items-center justify-center sm:justify-start gap-1 text-xs">
+                            <i data-lucide="heart" class="w-3.5 h-3.5 text-red-400 fill-current"></i> Pasangan: <span class="font-medium text-[#bd7a6b]">Ikii 🧸</span>
+                        </p>
+                    `;
+                }
+                if (partnerAvatar) partnerAvatar.innerHTML = `🧸`;
+                if (partnerNameEl) partnerNameEl.innerHTML = `ikii_19 <i data-lucide="badge-check" class="w-3.5 h-3.5 text-[#bd7a6b] fill-current"></i>`;
+            }
+
+            lucide.createIcons();
+        }
 
         // Tab Switcher Logic
         function switchTab(tabName) {
@@ -1137,7 +1239,6 @@ service cloud.firestore {
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        // Scroll ke Element
         function scrollToSection(sectionId) {
             if (sectionId === 'home-sec') switchTab('home');
             else if (sectionId === 'playlist-sec') switchTab('search');
@@ -1145,7 +1246,7 @@ service cloud.firestore {
             else if (sectionId === 'chat-sec') switchTab('chat');
         }
 
-        // Countdown Hari Spesial
+        // Countdown Ulang Tahun
         function getNextBirthday(month, day) {
             const now = new Date();
             let bday = new Date(now.getFullYear(), month - 1, day, 0, 0, 0);
@@ -1158,7 +1259,6 @@ service cloud.firestore {
         function updateBirthdayCountdowns() {
             const now = new Date();
 
-            // Ulang Tahun Ayyaa: 12 September
             const ayyaaBday = getNextBirthday(9, 12);
             const diffAyyaa = ayyaaBday - now;
             const daysA = Math.floor(diffAyyaa / (1000 * 60 * 60 * 24));
@@ -1166,7 +1266,6 @@ service cloud.firestore {
             const minutesA = Math.floor((diffAyyaa % (1000 * 60 * 60)) / (1000 * 60));
             const secondsA = Math.floor((diffAyyaa % (1000 * 60)) / 1000);
 
-            // Ulang Tahun Ikii: 19 September
             const ikiiBday = getNextBirthday(9, 19);
             const diffIkii = ikiiBday - now;
             const daysI = Math.floor(diffIkii / (1000 * 60 * 60 * 24));
@@ -1181,24 +1280,7 @@ service cloud.firestore {
             if (bdayIkiiEl) bdayIkiiEl.innerHTML = `${daysI}d ${hoursI}h ${minutesI}m ${secondsI}s`;
         }
 
-        // Love Journey Tracker (Dating anniversary live count-up)
-        function updateLoveJourney() {
-            const startDate = new Date('2024-09-12T00:00:00'); // Moment dekat 12 September 2024
-            const now = new Date();
-            const diff = now - startDate;
-            
-            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-            
-            const loveCounterEl = document.getElementById('love-journey-counter');
-            if (loveCounterEl) {
-                loveCounterEl.innerHTML = `${days} Hari <span class="text-xs text-[#8e766e] font-normal">(${hours}j ${minutes}m ${seconds}s)</span>`;
-            }
-        }
-
-        // Parse link Google Drive menjadi direct-link
+        // Parse Google Drive Link
         function parseDriveUrl(url) {
             url = url.trim();
             const regFileD = /\/file\/d\/([a-zA-Z0-9_-]+)/;
@@ -1222,7 +1304,6 @@ service cloud.firestore {
 
         // Listener Real-time & Sinkronisasi Data Firestore
         function setupDataListeners() {
-            // Bersihkan listener lama terlebih dahulu agar tidak terjadi tabrakan kueri
             if (unsubscribeChats) {
                 unsubscribeChats();
                 unsubscribeChats = null;
@@ -1232,29 +1313,23 @@ service cloud.firestore {
                 unsubscribeGallery = null;
             }
 
-            // Jalankan pengambilan data Firestore jika status Autentikasi sukses (Aturan 3)
             if (isFirebaseReady && currentAuthUser) {
                 logDebug("Database", "Membuka sinkronisasi real-time...");
                 
-                // 1. Sinkronisasi Obrolan secara Real-time dari Cloud
                 unsubscribeChats = onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'chats'), (snapshot) => {
                     let messages = [];
                     snapshot.forEach(doc => {
                         messages.push({ id: doc.id, ...doc.data() });
                     });
-                    // Urutkan berdasarkan waktu di memori lokal (Aturan 2)
                     messages.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
                     renderMessages(messages);
-                    document.getElementById('db-warning-banner').classList.add('hidden');
                     updateUIConnectionStatus(true);
                 }, (error) => {
                     logDebug("Database (Chat)", "Gagal Membuka Obrolan!", error.code + " - " + error.message);
-                    document.getElementById('db-warning-banner').classList.remove('hidden');
                     updateUIConnectionStatus(false);
                     renderMessages(fallbackChats);
                 });
 
-                // 2. Sinkronisasi Galeri Tambahan dari Cloud
                 unsubscribeGallery = onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'gallery'), (snapshot) => {
                     let customItems = [];
                     snapshot.forEach(doc => {
@@ -1268,13 +1343,12 @@ service cloud.firestore {
                 });
 
             } else {
-                // Gunakan mode luring (offline) dengan LocalStorage jika Cloud tidak siap
                 renderMessages(fallbackChats);
                 renderGallery(fallbackGallery.map((url, i) => ({ id: `local-${i}`, url })));
             }
         }
 
-        // Simpan Foto Baru ke Cloud / Local
+        // Simpan Foto Baru
         async function addDriveItem() {
             const inputElement = document.getElementById('drive-link-input');
             const rawUrl = inputElement.value.trim();
@@ -1286,10 +1360,11 @@ service cloud.firestore {
                 try {
                     await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'gallery'), {
                         url: finalUrl,
-                        timestamp: Date.now()
+                        timestamp: Date.now(),
+                        uploader: currentUser
                     });
                 } catch (e) {
-                    console.error("Gagal mengunggah foto ke database cloud: ", e);
+                    console.error("Gagal mengunggah foto: ", e);
                     logDebug("Tambah Galeri", "Gagal!", e.message);
                 }
             } else {
@@ -1301,13 +1376,13 @@ service cloud.firestore {
             inputElement.value = '';
         }
 
-        // Hapus Foto dari Cloud / Local
+        // Hapus Foto
         async function deleteDriveItem(id, index) {
             if (isFirebaseReady && !id.startsWith('local-') && currentAuthUser) {
                 try {
                     await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'gallery', id));
                 } catch (e) {
-                    console.error("Gagal menghapus foto dari database cloud: ", e);
+                    console.error("Gagal menghapus foto: ", e);
                     logDebug("Hapus Galeri", "Gagal!", e.message);
                 }
             } else {
@@ -1318,19 +1393,17 @@ service cloud.firestore {
             }
         }
 
-        // Render Seluruh Grid Galeri (Foto Bawaan + Kustom)
+        // Render Galeri Grid
         function renderGallery(customItems = []) {
             const grid = document.getElementById('gallery-grid');
             if (!grid) return;
             grid.innerHTML = '';
 
-            // Update status Kiriman secara dinamis di halaman profil
             const statPosts = document.getElementById('profile-stat-posts');
             if (statPosts) {
                 statPosts.innerHTML = `<strong class="text-[#4a3e3d]">${defaultGalleryItems.length + customItems.length}</strong> Kiriman`;
             }
 
-            // Render Foto Utama bawaan terlebih dahulu
             defaultGalleryItems.forEach((item, idx) => {
                 const defaultCardHTML = `
                     <div class="group relative aspect-square bg-[#fcfaf7] border border-[#eaddd0] rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all cursor-pointer">
@@ -1347,7 +1420,6 @@ service cloud.firestore {
                 grid.insertAdjacentHTML('beforeend', defaultCardHTML);
             });
 
-            // Tambahkan foto custom yang tersimpan permanen
             customItems.forEach((item, index) => {
                 const customCardHTML = `
                     <div class="group relative aspect-square bg-[#fcfaf7] border border-[#eaddd0] rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all">
@@ -1365,7 +1437,7 @@ service cloud.firestore {
             lucide.createIcons();
         }
 
-        // Kontrol Pemutar Audio Global
+        // Audio Player Global
         let isAudioPlaying = false; 
         const audioEl = document.getElementById('global-audio');
 
@@ -1399,7 +1471,6 @@ service cloud.firestore {
             lucide.createIcons();
         }
 
-        // Buka Popup Modal Memoar Musik
         function openMusicPopup(title, date, story, theme, musicUrl, imageUrl) {
             const modal = document.getElementById('music-modal');
             const modalTitle = document.getElementById('modal-title');
@@ -1459,32 +1530,12 @@ service cloud.firestore {
             lucide.createIcons();
         }
 
-        // Tutup Popup Modal
         function closeMusicPopup() {
             const modal = document.getElementById('music-modal');
             if (modal) modal.classList.add('hidden');
         }
 
-        // Ubah Pengirim DM
-        function setSender(sender) {
-            const btnAyyaa = document.getElementById('sender-ayyaa');
-            const btnIkii = document.getElementById('sender-ikii');
-
-            currentSender = sender;
-
-            if (sender === 'ayyaa') {
-                if (btnAyyaa) btnAyyaa.className = "px-4 py-1.5 rounded-lg font-medium transition-all bg-[#e79e8c] text-white shadow-sm";
-                if (btnIkii) btnIkii.className = "px-4 py-1.5 rounded-lg font-medium transition-all text-[#8e766e] hover:text-[#bd7a6b]";
-            } else {
-                if (btnIkii) btnIkii.className = "px-4 py-1.5 rounded-lg font-medium transition-all bg-[#e79e8c] text-white shadow-sm";
-                if (btnAyyaa) btnAyyaa.className = "px-4 py-1.5 rounded-lg font-medium transition-all text-[#8e766e] hover:text-[#bd7a6b]";
-            }
-
-            // Muat ulang data realtime saat mengganti POV agar visualisasi Bubble Chat langsung ter-render dengan benar
-            setupDataListeners();
-        }
-
-        // Kirim Pesan Direct Message baru
+        // Kirim Chat DM
         async function sendChatMessage() {
             const chatInput = document.getElementById('chat-input');
             if (!chatInput) return;
@@ -1497,7 +1548,7 @@ service cloud.firestore {
             const safeText = escapeHTML(messageText);
 
             const messageObj = {
-                sender: currentSender,
+                sender: currentUser || 'ikii',
                 text: safeText,
                 time: timeString,
                 timestamp: Date.now()
@@ -1507,7 +1558,7 @@ service cloud.firestore {
                 try {
                     await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'chats'), messageObj);
                 } catch (e) {
-                    console.error("Gagal mengirim pesan ke database cloud: ", e);
+                    console.error("Gagal mengirim pesan: ", e);
                     logDebug("Kirim Chat", "Gagal!", e.message);
                 }
             } else {
@@ -1519,13 +1570,11 @@ service cloud.firestore {
             chatInput.value = '';
         }
 
-        // Fungsi menghapus semua obrolan (Direct Messages) secara massal
+        // Clear All Chats
         async function clearAllChats() {
-            // 1. Bersihkan penyimpanan lokal (localStorage)
             localStorage.removeItem('ayyaa_ikii_chat');
             fallbackChats = [];
 
-            // 2. Bersihkan dari Firebase Firestore jika terhubung ke cloud
             if (isFirebaseReady && currentAuthUser) {
                 try {
                     const chatCollectionRef = collection(db, 'artifacts', appId, 'public', 'data', 'chats');
@@ -1544,11 +1593,9 @@ service cloud.firestore {
                 }
             }
             
-            // Render ulang tampilan thread chat menjadi kosong
             renderMessages([]);
         }
 
-        // Fungsi-fungsi kontrol untuk Modal Hapus Chat
         function openClearChatModal() {
             const modal = document.getElementById('clear-chat-modal');
             if (modal) modal.classList.remove('hidden');
@@ -1564,38 +1611,36 @@ service cloud.firestore {
             await clearAllChats();
         }
 
-        // Render Thread DM secara Dinamis sesuai Switch Pengirim
+        // Render Thread DM dalam gaya Instagram
         function renderMessages(messagesList = []) {
             const thread = document.getElementById('chat-thread');
             if (!thread) return;
             thread.innerHTML = '';
 
             messagesList.forEach(msg => {
-                const isMyMessage = (msg.sender === currentSender);
-                const initial = msg.sender === 'ikii' ? 'I' : 'A';
-                const avatarBg = msg.sender === 'ikii' ? 'bg-[#bd7a6b] text-white' : 'bg-[#f1e4d8] text-[#8e766e]';
+                const isMyMessage = (msg.sender === currentUser);
+                const senderAvatarLetter = msg.sender === 'ikii' ? '🧸' : '🎀';
 
                 let itemHTML = '';
 
                 if (isMyMessage) {
                     itemHTML = `
-                        <div class="flex items-start justify-end space-x-2.5">
-                            <div class="max-w-[75%] bg-[#f7ebe0] border border-[#ebdcd0] p-3.5 rounded-2xl rounded-tr-none shadow-xs">
-                                <span class="block text-[10px] font-semibold text-[#bd7a6b] text-right mb-1">${msg.sender} (Anda)</span>
-                                <p class="text-sm text-[#4a3e3d] text-right break-words">${msg.text}</p>
-                                <span class="block text-[9px] text-gray-400 text-left mt-1.5">${msg.time}</span>
+                        <div class="flex items-end justify-end space-x-2 my-1">
+                            <div class="max-w-[75%] px-4 py-2.5 chat-bubble-me text-sm shadow-xs break-words">
+                                <p class="leading-relaxed">${msg.text}</p>
+                                <span class="block text-[9px] text-white/70 text-right mt-1 font-light">${msg.time}</span>
                             </div>
-                            <div class="w-8 h-8 rounded-full ${avatarBg} flex items-center justify-center text-xs font-bold flex-shrink-0">${initial}</div>
                         </div>
                     `;
                 } else {
                     itemHTML = `
-                        <div class="flex items-start space-x-2.5">
-                            <div class="w-8 h-8 rounded-full ${avatarBg} flex items-center justify-center text-xs font-bold flex-shrink-0">${initial}</div>
-                            <div class="max-w-[75%] bg-white border border-[#eaddd0] p-3.5 rounded-2xl rounded-tl-none shadow-xs">
-                                <span class="block text-[10px] font-semibold text-[#bd7a6b] mb-1">${msg.sender}</span>
-                                <p class="text-sm text-[#4a3e3d] break-words">${msg.text}</p>
-                                <span class="block text-[9px] text-gray-400 text-right mt-1.5">${msg.time}</span>
+                        <div class="flex items-end space-x-2 my-1">
+                            <div class="w-7 h-7 rounded-full bg-[#bd7a6b] text-white flex items-center justify-center text-xs font-bold flex-shrink-0 shadow-xs mb-1">
+                                ${senderAvatarLetter}
+                            </div>
+                            <div class="max-w-[75%] px-4 py-2.5 chat-bubble-other text-sm shadow-xs break-words">
+                                <p class="leading-relaxed">${msg.text}</p>
+                                <span class="block text-[9px] text-gray-400 mt-1 font-light">${msg.time}</span>
                             </div>
                         </div>
                     `;
@@ -1603,14 +1648,12 @@ service cloud.firestore {
                 thread.insertAdjacentHTML('beforeend', itemHTML);
             });
 
-            // Scroll otomatis yang sangat halus ke pesan terbawah
             thread.scrollTo({
                 top: thread.scrollHeight,
                 behavior: 'smooth'
             });
         }
 
-        // Hubungkan Chat Input ke Tombol Enter
         const chatInputEl = document.getElementById('chat-input');
         if (chatInputEl) {
             chatInputEl.addEventListener('keypress', function(e) {
@@ -1620,7 +1663,7 @@ service cloud.firestore {
             });
         }
 
-        // ================= CLOUD SYNC SETTINGS HANDLERS =================
+        // Cloud Config Handlers
         function openCloudConfigModal() {
             const modal = document.getElementById('cloud-config-modal');
             if (!modal) return;
@@ -1687,7 +1730,6 @@ service cloud.firestore {
             }, 1500);
         }
 
-        // Control Fungsi Debug Modal
         function openDebugModal() {
             const modal = document.getElementById('debug-modal');
             if (modal) modal.classList.remove('hidden');
@@ -1698,8 +1740,9 @@ service cloud.firestore {
             if (modal) modal.classList.add('hidden');
         }
 
-        // Hubungkan semua fungsi utama ke object window agar berjalan di runtime HTML Inline
+        // Attach to global window
         window.checkPassword = checkPassword;
+        window.logout = logout;
         window.switchTab = switchTab;
         window.scrollToSection = scrollToSection;
         window.addDriveItem = addDriveItem;
@@ -1707,7 +1750,6 @@ service cloud.firestore {
         window.toggleGlobalAudio = toggleGlobalAudio;
         window.openMusicPopup = openMusicPopup;
         window.closeMusicPopup = closeMusicPopup;
-        window.setSender = setSender;
         window.sendChatMessage = sendChatMessage;
         window.openCloudConfigModal = openCloudConfigModal;
         window.closeCloudConfigModal = closeCloudConfigModal;
