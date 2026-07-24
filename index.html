@@ -101,15 +101,15 @@
                 <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-[#e79e8c]/20 text-[#bd7a6b] mb-1">
                     <i data-lucide="instagram" class="w-6 h-6"></i>
                 </div>
-                <h1 class="text-3xl font-serif-aesthetic text-[#bd7a6b] font-semibold tracking-wider">Couplegram</h1>
-                <p class="text-xs text-gray-500 font-light">Masuk ke akunmu dulu yaa..</p>
+                <h1 class="text-3xl font-serif-aesthetic text-[#bd7a6b] font-semibold tracking-wider">About Us</h1>
+                <p class="text-xs text-gray-500 font-light">Login Dulu Yaaa..</p>
             </div>
 
             <!-- Login Form -->
             <div class="space-y-3.5 text-left">
                 <div>
                     <label class="block text-[11px] font-semibold uppercase tracking-wider text-gray-500 mb-1 ml-1">Username</label>
-                    <input type="text" id="login-username" placeholder="ikii / ayyaa" 
+                    <input type="text" id="login-username" placeholder="••••••••" 
                         class="w-full px-4 py-3 rounded-xl border border-[#e3d5c8] bg-[#fbf9f6] text-sm focus:ring-2 focus:ring-[#e79e8c] focus:outline-none transition-all placeholder:text-gray-300 text-[#4a3e3d]">
                 </div>
 
@@ -121,7 +121,7 @@
 
                 <button onclick="checkPassword()" 
                     class="w-full mt-2 bg-[#e79e8c] text-white py-3 rounded-xl font-medium tracking-wide shadow-sm hover:bg-[#db8d7b] transition-all transform hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-2 text-sm">
-                    Masuk <i data-lucide="log-in" class="w-4 h-4"></i>
+                    Login <i data-lucide="log-in" class="w-4 h-4"></i>
                 </button>
                 
                 <p id="password-error" class="text-xs text-red-400 font-light text-center hidden pt-1">Username atau password salah boloo 🥺</p>
@@ -715,7 +715,7 @@
                         </button>
 
                         <button onclick="logout()" class="inline-flex items-center gap-1.5 text-xs text-red-500 bg-red-50 hover:bg-red-100 px-4 py-2.5 rounded-xl font-medium transition-all">
-                            <i data-lucide="log-out" class="w-3.5 h-3.5"></i> Keluar (Logout)
+                            <i data-lucide="log-out" class="w-3.5 h-3.5"></i> Logout
                         </button>
                     </div>
                 </div>
@@ -1160,44 +1160,43 @@
             const navInitial = document.getElementById('nav-profile-initial');
 
             if (currentUser === 'ikii') {
-                if (headerBadge) headerBadge.innerHTML = `🧸 ikii`;
+                if (headerBadge) headerBadge.innerHTML = `ikii`;
                 if (avatarCircle) avatarCircle.innerHTML = `🧸`;
-                if (usernameHeading) usernameHeading.innerHTML = `ikii_19`;
+                if (usernameHeading) usernameHeading.innerHTML = `ikii`;
                 if (navInitial) navInitial.innerHTML = `I`;
                 if (bioContainer) {
                     bioContainer.innerHTML = `
-                        <p class="font-semibold text-[#4a3e3d]">Ikii 🧸</p>
-                        <p class="text-xs italic text-[#bd7a6b]">"Ada orang yang hadir sebentar lalu pergi, and ada kamu yang datang lalu menjadi rumah." — 1909</p>
+                        <p class="font-semibold text-[#4a3e3d]">Ikii </p>
+                        <p class="text-xs italic text-[#bd7a6b]">"Ada orang yang hadir sebentar lalu pergi, and ada kamu yang datang lalu menjadi rumah." — 0mdpl</p>
                         <p class="flex items-center justify-center sm:justify-start gap-1 text-xs pt-1">
                             <i data-lucide="calendar" class="w-3.5 h-3.5"></i> Ulang Tahun: <span class="font-medium">19 September 2008</span>
                         </p>
                         <p class="flex items-center justify-center sm:justify-start gap-1 text-xs">
-                            <i data-lucide="heart" class="w-3.5 h-3.5 text-red-400 fill-current"></i> Pasangan: <span class="font-medium text-[#bd7a6b]">Ayyaa 🎀</span>
-                        </p>
+                            <i data-lucide="calendar" class="w-3.5 h-3.5"></i> Ulang Tahun ayyaa: <span class="font-medium">12 September 2008</span>
                     `;
                 }
                 if (partnerAvatar) partnerAvatar.innerHTML = `🎀`;
-                if (partnerNameEl) partnerNameEl.innerHTML = `ayyaa_12 <i data-lucide="badge-check" class="w-3.5 h-3.5 text-[#bd7a6b] fill-current"></i>`;
+                if (partnerNameEl) partnerNameEl.innerHTML = `ayyaa <i data-lucide="badge-check" class="w-3.5 h-3.5 text-[#bd7a6b] fill-current"></i>`;
 
             } else if (currentUser === 'ayyaa') {
-                if (headerBadge) headerBadge.innerHTML = `🎀 ayyaa`;
+                if (headerBadge) headerBadge.innerHTML = `ayyaa`;
                 if (avatarCircle) avatarCircle.innerHTML = `🎀`;
-                if (usernameHeading) usernameHeading.innerHTML = `ayyaa_12`;
+                if (usernameHeading) usernameHeading.innerHTML = `ayyaa`;
                 if (navInitial) navInitial.innerHTML = `A`;
                 if (bioContainer) {
                     bioContainer.innerHTML = `
-                        <p class="font-semibold text-[#4a3e3d]">Ayyaa 🎀</p>
-                        <p class="text-xs italic text-[#bd7a6b]">"Diantara milyaran bintang, kamu adalah alasan favoritku untuk tersenyum." — 1209</p>
+                        <p class="font-semibold text-[#4a3e3d]">Ayyaa </p>
+                        <p class="text-xs italic text-[#bd7a6b]">"Diantara milyaran bintang, kamu adalah alasan favoritku untuk tersenyum." — 0mdpl</p>
                         <p class="flex items-center justify-center sm:justify-start gap-1 text-xs pt-1">
                             <i data-lucide="calendar" class="w-3.5 h-3.5"></i> Ulang Tahun: <span class="font-medium">12 September 2008</span>
                         </p>
                         <p class="flex items-center justify-center sm:justify-start gap-1 text-xs">
-                            <i data-lucide="heart" class="w-3.5 h-3.5 text-red-400 fill-current"></i> Pasangan: <span class="font-medium text-[#bd7a6b]">Ikii 🧸</span>
+                            <i data-lucide="calendar" class="w-3.5 h-3.5"></i> Ulang Tahun ikii: <span class="font-medium">19 September 2008</span>
                         </p>
                     `;
                 }
                 if (partnerAvatar) partnerAvatar.innerHTML = `🧸`;
-                if (partnerNameEl) partnerNameEl.innerHTML = `ikii_19 <i data-lucide="badge-check" class="w-3.5 h-3.5 text-[#bd7a6b] fill-current"></i>`;
+                if (partnerNameEl) partnerNameEl.innerHTML = `ikii <i data-lucide="badge-check" class="w-3.5 h-3.5 text-[#bd7a6b] fill-current"></i>`;
             }
 
             lucide.createIcons();
