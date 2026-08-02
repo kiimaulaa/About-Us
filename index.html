@@ -80,6 +80,14 @@
             border: 1px solid #ebdcd0;
             border-radius: 20px 20px 20px 4px;
         }
+        /* Spinning record animation */
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        .spin-slow {
+            animation: spin 6s linear infinite;
+        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col overflow-x-hidden selection:bg-[#e79e8c] selection:text-white pb-32">
@@ -564,21 +572,36 @@
                     <p class="text-xs text-gray-500 max-w-sm mx-auto">Potongan cerita yang harus diabadikan.</p>
                 </div>
 
-                <!-- Input Khusus Google Drive Link -->
+                <!-- Input Khusus Google Drive Link & Upload File Explorer -->
                 <div class="bg-[#fcfaf7] border border-[#eaddd0] rounded-3xl p-5 shadow-sm space-y-4">
                     <div class="flex items-center gap-2 border-b border-[#ebdcd0] pb-2">
-                        <i data-lucide="link-2" class="w-5 h-5 text-[#bd7a6b]"></i>
-                        <h3 class="font-serif-aesthetic font-medium text-[#4a3e3d]">Tambah Foto/Video Baru</h3>
+                        <i data-lucide="plus-circle" class="w-5 h-5 text-[#bd7a6b]"></i>
+                        <h3 class="font-serif-aesthetic font-medium text-[#4a3e3d]">Tambah Foto / Video Baru</h3>
                     </div>
-                    <div class="flex flex-col sm:flex-row gap-2.5">
-                        <input type="text" id="drive-link-input" placeholder="Tempel link Google Drive atau URL gambar/video di sini..." 
-                            class="flex-grow px-4 py-3 bg-[#f7f3ed] border border-[#eaddd0] rounded-xl text-sm focus:outline-none focus:ring-1 focus:ring-[#e79e8c] text-[#4a3e3d]">
-                        <button onclick="addDriveItem()" 
-                            class="bg-[#e79e8c] text-white px-6 py-3 rounded-xl text-sm font-medium hover:bg-[#db8d7b] transition-all flex items-center justify-center gap-1.5 shadow-sm">
-                            <i data-lucide="plus" class="w-4 h-4"></i> Tambah
+
+                    <!-- Hidden File Input for Gallery Explorer -->
+                    <input type="file" id="gallery-file-input" accept="image/*,video/*" multiple class="hidden" onchange="handleGalleryFileSelect(event)">
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <!-- Option 1: Direct File Explorer Upload Button -->
+                        <button onclick="document.getElementById('gallery-file-input').click()" 
+                            class="w-full bg-[#f7f3ed] hover:bg-[#f1e5d9] border border-dashed border-[#e79e8c] text-[#bd7a6b] px-4 py-3.5 rounded-2xl text-sm font-medium transition-all flex items-center justify-center gap-2 shadow-xs group">
+                            <i data-lucide="folder-up" class="w-5 h-5 group-hover:scale-110 transition-transform"></i>
+                            <span>Pilih dari File Explorer HP / PC</span>
                         </button>
+
+                        <!-- Option 2: Google Drive / Direct URL Link Input -->
+                        <div class="flex gap-2">
+                            <input type="text" id="drive-link-input" placeholder="Atau paste link Drive / Web..." 
+                                class="flex-grow px-4 py-3 bg-[#f7f3ed] border border-[#eaddd0] rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-1 focus:ring-[#e79e8c] text-[#4a3e3d]">
+                            <button onclick="addDriveItem()" 
+                                class="bg-[#e79e8c] text-white px-5 py-3 rounded-xl text-sm font-medium hover:bg-[#db8d7b] transition-all flex items-center justify-center gap-1.5 shadow-sm">
+                                <i data-lucide="plus" class="w-4 h-4"></i> Tambah
+                            </button>
+                        </div>
                     </div>
-                    <p class="text-[11px] text-gray-400">Mendukung link Google Drive share umum serta direct link gambar/video.</p>
+                    
+                    <p class="text-[11px] text-gray-400">Mendukung upload langsung foto & video dari perangkat, link Google Drive share, dan direct URL.</p>
                 </div>
 
                 <!-- Grid Galeri Utama -->
@@ -587,7 +610,7 @@
                 </div>
             </section>
 
-            <!-- ================= MESSAGES CHAT SECTION (INSTAGRAM DM STYLE) ================= -->
+            <!-- ================= MESSAGES CHAT SECTION (INSTAGRAM DM STYLE WITH FILE UPLOAD) ================= -->
             <section id="chat-sec" class="hidden space-y-6 fade-in">
                 <!-- Chat Box Container -->
                 <div class="bg-[#fcfaf7] border border-[#eaddd0] rounded-3xl shadow-sm flex flex-col h-[560px] overflow-hidden">
@@ -622,11 +645,38 @@
                         </p>
                     </div>
 
-                    <!-- Instagram Chat Input Field -->
+                    <!-- Instagram Chat Input Field with File Upload -->
                     <div class="p-3 bg-white border-t border-[#ebdcd0]">
-                        <div class="flex items-center bg-[#f7f3ed] border border-[#eaddd0] rounded-full px-4 py-1.5 focus-within:ring-2 focus-within:ring-[#e79e8c] transition-all">
+                        <!-- Pratinjau File yang Akan Dikirim -->
+                        <div id="chat-file-preview-container" class="hidden mb-2 p-2 bg-[#f7f3ed] border border-[#eaddd0] rounded-2xl flex items-center justify-between">
+                            <div class="flex items-center space-x-2.5 overflow-hidden">
+                                <div id="chat-file-preview-media" class="w-10 h-10 rounded-xl overflow-hidden flex-shrink-0 bg-[#eaddd0] flex items-center justify-center text-[#bd7a6b]">
+                                    <!-- Thumbnail Foto / Video -->
+                                </div>
+                                <div class="min-w-0 flex-1">
+                                    <p id="chat-file-preview-name" class="text-xs font-semibold text-[#4a3e3d] truncate"></p>
+                                    <p id="chat-file-preview-size" class="text-[10px] text-gray-400"></p>
+                                </div>
+                            </div>
+                            <button onclick="clearChatFileAttachment()" class="text-gray-400 hover:text-red-500 p-1.5 rounded-full transition-colors" title="Batal kirim file">
+                                <i data-lucide="x" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+
+                        <div class="flex items-center bg-[#f7f3ed] border border-[#eaddd0] rounded-full px-3 py-1.5 focus-within:ring-2 focus-within:ring-[#e79e8c] transition-all">
+                            <!-- Hidden File Input untuk Memilih Foto/Video dari HP -->
+                            <input type="file" id="chat-file-input" accept="image/*,video/*" class="hidden" onchange="handleChatFileSelect(event)">
+                            
+                            <!-- Tombol Pilih Foto/Video dari Perangkat -->
+                            <button type="button" onclick="triggerChatFileInput()" class="text-[#8e766e] hover:text-[#bd7a6b] p-1.5 transition-colors rounded-full flex-shrink-0" title="Kirim Foto / Video dari HP">
+                                <i data-lucide="image" class="w-5 h-5"></i>
+                            </button>
+
+                            <!-- Input Teks DM -->
                             <input type="text" id="chat-input" placeholder="Kirim pesan..." 
-                                class="flex-grow bg-transparent text-sm text-[#4a3e3d] focus:outline-none py-1.5">
+                                class="flex-grow bg-transparent text-sm text-[#4a3e3d] focus:outline-none py-1.5 px-2"
+                                onkeypress="if(event.key === 'Enter') sendChatMessage()">
+                            
                             <button onclick="sendChatMessage()" 
                                 class="text-[#bd7a6b] font-semibold hover:text-[#e79e8c] text-sm pl-2 transition-colors flex items-center gap-1">
                                 Send
@@ -846,10 +896,10 @@
         <!-- ================= STICKY AUDIO PLAYER ================= -->
         <div class="fixed bottom-24 right-4 z-40 bg-[#fbf9f6] border border-[#eaddd0] rounded-2xl p-3 shadow-md max-w-xs flex items-center space-x-3.5 fade-in">
             <div class="relative flex-shrink-0">
-                <div id="vinyl-record" class="w-10 h-10 rounded-full bg-[#27272a] flex items-center justify-center">
+                <div id="vinyl-record" class="w-10 h-10 rounded-full bg-[#27272a] flex items-center justify-center transition-all">
                     <span class="w-3 h-3 rounded-full bg-[#fbf9f6]"></span>
                 </div>
-                <div class="absolute inset-0 flex items-center justify-center">
+                <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
                     <span class="w-1.5 h-1.5 rounded-full bg-red-400"></span>
                 </div>
             </div>
@@ -917,6 +967,9 @@
 
         // User Account Logged-In State
         let currentUser = localStorage.getItem('couplegram_current_user') || null; // 'ikii' or 'ayyaa'
+
+        // File Attachment Pending State for Chat
+        let pendingFileAttachment = null; // { url, type, name, size }
 
         // Referensi pembersih listener realtime
         let unsubscribeChats = null;
@@ -1028,12 +1081,14 @@
                 url: "https://lh3.googleusercontent.com/d/1TvvkzFgSApHrYu-hMQMtiYZt9vZP-N-j",
                 caption: "First Date di Gellato",
                 id: "default-1",
-                isDefault: true
+                isDefault: true,
+                type: "image"
             }
         ];
 
         function escapeHTML(str) {
-            return str.replace(/[&<>'"]/g, 
+            if (!str) return '';
+            return String(str).replace(/[&<>'"]/g, 
                 tag => ({
                     '&': '&amp;',
                     '<': '&lt;',
@@ -1255,6 +1310,7 @@
 
         // Parse Google Drive Link
         function parseDriveUrl(url) {
+            if (!url) return '';
             url = url.trim();
             const regFileD = /\/file\/d\/([a-zA-Z0-9_-]+)/;
             const regIdParam = /[?&]id=([a-zA-Z0-9_-]+)/;
@@ -1275,232 +1331,442 @@
             return url;
         }
 
-        // Listener Real-time & Sinkronisasi Data Firestore
-        function setupDataListeners() {
-            if (unsubscribeChats) {
-                unsubscribeChats();
-                unsubscribeChats = null;
-            }
-            if (unsubscribeGallery) {
-                unsubscribeGallery();
-                unsubscribeGallery = null;
-            }
-
-            if (isFirebaseReady && currentAuthUser) {
-                logDebug("Database", "Membuka sinkronisasi real-time...");
-                
-                unsubscribeChats = onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'chats'), (snapshot) => {
-                    let messages = [];
-                    snapshot.forEach(doc => {
-                        messages.push({ id: doc.id, ...doc.data() });
-                    });
-                    messages.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
-                    renderMessages(messages);
-                    updateUIConnectionStatus(true);
-                }, (error) => {
-                    logDebug("Database (Chat)", "Gagal Membuka Obrolan!", error.code + " - " + error.message);
-                    updateUIConnectionStatus(false);
-                    renderMessages(fallbackChats);
-                });
-
-                unsubscribeGallery = onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'gallery'), (snapshot) => {
-                    let customItems = [];
-                    snapshot.forEach(doc => {
-                        customItems.push({ id: doc.id, ...doc.data() });
-                    });
-                    customItems.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
-                    renderGallery(customItems);
-                }, (error) => {
-                    logDebug("Database (Galeri)", "Gagal Membuka Galeri!", error.code + " - " + error.message);
-                    renderGallery(fallbackGallery.map((url, i) => ({ id: `local-${i}`, url })));
-                });
-
-            } else {
-                renderMessages(fallbackChats);
-                renderGallery(fallbackGallery.map((url, i) => ({ id: `local-${i}`, url })));
-            }
+        // Helper Kompresi Gambar agar Pas di Storage & Base64 Firestore
+        function compressImage(file, maxWidth = 1024, maxHeight = 1024, quality = 0.7) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = (e) => {
+                    const img = new Image();
+                    img.src = e.target.result;
+                    img.onload = () => {
+                        let width = img.width;
+                        let height = img.height;
+                        if (width > maxWidth || height > maxHeight) {
+                            if (width > height) {
+                                height = Math.round((height * maxWidth) / width);
+                                width = maxWidth;
+                            } else {
+                                width = Math.round((width * maxHeight) / height);
+                                height = maxHeight;
+                            }
+                        }
+                        const canvas = document.createElement('canvas');
+                        canvas.width = width;
+                        canvas.height = height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, width, height);
+                        const dataUrl = canvas.toDataURL(file.type === 'image/png' ? 'image/png' : 'image/jpeg', quality);
+                        resolve(dataUrl);
+                    };
+                    img.onerror = (err) => reject(err);
+                };
+                reader.onerror = (err) => reject(err);
+            });
         }
 
-        // Simpan Foto Baru
+        // Read File as Data URL (for videos or generic files)
+        function readFileAsDataURL(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = (e) => resolve(e.target.result);
+                reader.onerror = (err) => reject(err);
+                reader.readAsDataURL(file);
+            });
+        }
+
+        // ================= FITUR UNGGAH FILE EXPLORER DI GALERI =================
+        async function handleGalleryFileSelect(event) {
+            const files = event.target.files;
+            if (!files || files.length === 0) return;
+
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                const isVideo = file.type.startsWith('video');
+
+                // Batas ukuran 20MB untuk video, 10MB untuk gambar
+                if (file.size > 20 * 1024 * 1024) {
+                    alert(`File "${file.name}" terlalu besar! Maksimal 20MB yaa 😊`);
+                    continue;
+                }
+
+                try {
+                    let fileDataUrl = '';
+                    if (file.type.startsWith('image')) {
+                        fileDataUrl = await compressImage(file, 1200, 1200, 0.75);
+                    } else {
+                        fileDataUrl = await readFileAsDataURL(file);
+                    }
+
+                    const newItem = {
+                        url: fileDataUrl,
+                        caption: file.name.replace(/\.[^/.]+$/, ""), // nama file tanpa ekstensi
+                        type: isVideo ? 'video' : 'image',
+                        createdAt: new Date().toISOString(),
+                        user: currentUser || 'ikii'
+                    };
+
+                    // Kirim ke Firestore jika online, atau lokal jika offline
+                    if (isFirebaseReady && db && auth && auth.currentUser) {
+                        const galleryCol = collection(db, 'artifacts', appId, 'public', 'data', 'gallery');
+                        await addDoc(galleryCol, newItem);
+                    } else {
+                        newItem.id = 'local_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4);
+                        fallbackGallery.unshift(newItem);
+                        localStorage.setItem('ayyaa_ikii_gallery_custom', JSON.stringify(fallbackGallery));
+                        renderGalleryItems();
+                    }
+                } catch (err) {
+                    console.error("Gagal memproses file galeri:", err);
+                    alert("Gagal mengunggah file " + file.name + ". Silakan coba lagi!");
+                }
+            }
+
+            // Reset input file agar bisa pilih file yang sama kembali
+            event.target.value = '';
+        }
+
+        // Tambah link Drive / URL langsung di Galeri
         async function addDriveItem() {
-            const inputElement = document.getElementById('drive-link-input');
-            const rawUrl = inputElement.value.trim();
-            if (!rawUrl) return;
+            const input = document.getElementById('drive-link-input');
+            const rawUrl = input.value.trim();
 
-            const finalUrl = parseDriveUrl(rawUrl);
-
-            if (isFirebaseReady && currentAuthUser) {
-                try {
-                    await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'gallery'), {
-                        url: finalUrl,
-                        timestamp: Date.now(),
-                        uploader: currentUser
-                    });
-                } catch (e) {
-                    console.error("Gagal mengunggah foto: ", e);
-                    logDebug("Tambah Galeri", "Gagal!", e.message);
-                }
-            } else {
-                fallbackGallery.push(finalUrl);
-                localStorage.setItem('ayyaa_ikii_gallery_custom', JSON.stringify(fallbackGallery));
-                renderGallery(fallbackGallery.map((url, i) => ({ id: `local-${i}`, url })));
-            }
-
-            inputElement.value = '';
-        }
-
-        // Hapus Foto
-        async function deleteDriveItem(id, index) {
-            if (isFirebaseReady && !id.startsWith('local-') && currentAuthUser) {
-                try {
-                    await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'gallery', id));
-                } catch (e) {
-                    console.error("Gagal menghapus foto: ", e);
-                    logDebug("Hapus Galeri", "Gagal!", e.message);
-                }
-            } else {
-                const fallbackIndex = parseInt(id.replace('local-', '')) || index;
-                fallbackGallery.splice(fallbackIndex, 1);
-                localStorage.setItem('ayyaa_ikii_gallery_custom', JSON.stringify(fallbackGallery));
-                renderGallery(fallbackGallery.map((url, i) => ({ id: `local-${i}`, url })));
-            }
-        }
-
-        // Render Galeri Grid
-        function renderGallery(customItems = []) {
-            const grid = document.getElementById('gallery-grid');
-            if (!grid) return;
-            grid.innerHTML = '';
-
-            const statPosts = document.getElementById('profile-stat-posts');
-            if (statPosts) {
-                statPosts.innerHTML = `<strong class="text-[#4a3e3d]">${defaultGalleryItems.length + customItems.length}</strong> Kiriman`;
-            }
-
-            defaultGalleryItems.forEach((item, idx) => {
-                const defaultCardHTML = `
-                    <div class="group relative aspect-square bg-[#fcfaf7] border border-[#eaddd0] rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all cursor-pointer">
-                        <img src="${item.url}" 
-                             onerror="this.style.display='none'; document.getElementById('fb-foto-${idx}').style.display='flex';" 
-                             class="w-full h-full object-cover">
-                        <div id="fb-foto-${idx}" class="w-full h-full flex flex-col items-center justify-center p-4 text-center bg-[#f7ebe0]">
-                            <i data-lucide="image" class="w-8 h-8 text-[#dbbc9d] mb-2"></i>
-                            <span class="text-xs font-serif-aesthetic italic text-[#8e766e]">"${item.caption}"</span>
-                            <span class="text-[10px] text-gray-400 mt-2 font-mono">[Foto ${idx + 1}]</span>
-                        </div>
-                    </div>
-                `;
-                grid.insertAdjacentHTML('beforeend', defaultCardHTML);
-            });
-
-            customItems.forEach((item, index) => {
-                const customCardHTML = `
-                    <div class="group relative aspect-square bg-[#fcfaf7] border border-[#eaddd0] rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all">
-                        <img src="${item.url}" class="w-full h-full object-cover" onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%22 height=%22100%22><rect width=%22100%22 height=%22100%22 fill=%22%23f5ebe0%22/><text x=%2250%%22 y=%2250%%22 font-family=%22sans-serif%22 font-size=%2210%22 fill=%22%23bd7a6b%22 text-anchor=%22middle%22 dy=%22.3em%22>Media Ditambahkan</text></svg>';" />
-                        <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                            <button onclick="deleteDriveItem('${item.id}', ${index})" class="bg-red-500 hover:bg-red-600 text-white p-2.5 rounded-full shadow-lg transition-transform hover:scale-110">
-                                <i data-lucide="trash-2" class="w-4 h-4"></i>
-                            </button>
-                        </div>
-                    </div>
-                `;
-                grid.insertAdjacentHTML('beforeend', customCardHTML);
-            });
-
-            lucide.createIcons();
-        }
-
-        // Audio Player Global
-        let isAudioPlaying = false; 
-        const audioEl = document.getElementById('global-audio');
-
-        function toggleGlobalAudio() {
-            const playBtn = document.getElementById('global-play-btn');
-            const nowPlaying = document.getElementById('now-playing-title');
-            const vinyl = document.getElementById('vinyl-record');
-            
-            if (!audioEl.src || audioEl.src === window.location.href) {
-                nowPlaying.innerText = "Pilih Memoar Lagu...";
+            if (!rawUrl) {
+                alert("Masukkan link Google Drive atau link gambar/video dulu yaa!");
                 return;
             }
 
-            if (isAudioPlaying) {
-                audioEl.pause();
-                playBtn.innerHTML = '<i data-lucide="play" class="w-4 h-4 fill-current"></i>';
-                nowPlaying.classList.add('opacity-60');
-                vinyl.classList.remove('animate-spin');
-                isAudioPlaying = false;
+            const parsedUrl = parseDriveUrl(rawUrl);
+            const isVideo = parsedUrl.includes('.mp4') || parsedUrl.includes('.webm');
+
+            const newItem = {
+                url: parsedUrl,
+                caption: "Foto Memori Kita",
+                type: isVideo ? 'video' : 'image',
+                createdAt: new Date().toISOString(),
+                user: currentUser || 'ikii'
+            };
+
+            if (isFirebaseReady && db && auth && auth.currentUser) {
+                try {
+                    const galleryCol = collection(db, 'artifacts', appId, 'public', 'data', 'gallery');
+                    await addDoc(galleryCol, newItem);
+                } catch (err) {
+                    console.error("Gagal menambah link drive ke Firestore:", err);
+                }
             } else {
-                audioEl.play().then(() => {
-                    playBtn.innerHTML = '<i data-lucide="pause" class="w-4 h-4 fill-current"></i>';
-                    nowPlaying.classList.remove('opacity-60');
-                    vinyl.classList.add('animate-spin');
-                    vinyl.style.animationDuration = '8s';
-                    isAudioPlaying = true;
-                }).catch(err => {
-                    console.log("Audio play blocked / error:", err);
-                });
+                newItem.id = 'local_' + Date.now();
+                fallbackGallery.unshift(newItem);
+                localStorage.setItem('ayyaa_ikii_gallery_custom', JSON.stringify(fallbackGallery));
+                renderGalleryItems();
             }
+
+            input.value = '';
+        }
+
+        // Render Galeri Items Grid
+        function renderGalleryItems(cloudItems = []) {
+            const grid = document.getElementById('gallery-grid');
+            if (!grid) return;
+
+            // Gabungkan default, lokal, dan Firestore data (hindari duplikat)
+            const combinedMap = new Map();
+
+            defaultGalleryItems.forEach(item => combinedMap.set(item.id, item));
+            fallbackGallery.forEach(item => combinedMap.set(item.id || item.url, item));
+            cloudItems.forEach(item => combinedMap.set(item.id, item));
+
+            const allItems = Array.from(combinedMap.values());
+
+            // Update statistik kiriman profil
+            const statPosts = document.getElementById('profile-stat-posts');
+            if (statPosts) {
+                statPosts.innerHTML = `<strong class="text-[#4a3e3d]">${allItems.length}</strong> Kiriman`;
+            }
+
+            if (allItems.length === 0) {
+                grid.innerHTML = `
+                    <div class="col-span-full py-12 text-center text-gray-400 font-light">
+                        <i data-lucide="image" class="w-10 h-10 mx-auto mb-2 text-[#e79e8c]/50"></i>
+                        <p class="text-xs">Belum ada foto/video di galeri.</p>
+                    </div>
+                `;
+                lucide.createIcons();
+                return;
+            }
+
+            grid.innerHTML = allItems.map(item => {
+                const isVideo = item.type === 'video' || (item.url && (item.url.startsWith('data:video') || item.url.includes('.mp4')));
+                
+                return `
+                    <div class="relative group rounded-2xl overflow-hidden bg-[#f5ebe0] border border-[#ebdcd0] shadow-sm aspect-square flex items-center justify-center">
+                        ${isVideo ? `
+                            <video src="${escapeHTML(item.url)}" controls class="w-full h-full object-cover rounded-2xl"></video>
+                        ` : `
+                            <img src="${escapeHTML(item.url)}" alt="${escapeHTML(item.caption || 'Foto')}" 
+                                class="w-full h-full object-cover rounded-2xl group-hover:scale-105 transition-transform duration-300"
+                                onerror="this.onerror=null; this.src='https://placehold.co/400x400/f5ebe0/bd7a6b?text=Foto+Galeri'">
+                        `}
+                        
+                        <!-- Overlay Caption & Delete -->
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity p-3 flex flex-col justify-between pointer-events-none group-hover:pointer-events-auto">
+                            <div class="flex justify-end">
+                                ${!item.isDefault ? `
+                                    <button onclick="deleteGalleryItem('${item.id}')" class="bg-red-500/80 hover:bg-red-600 text-white p-1.5 rounded-full transition-colors" title="Hapus foto ini">
+                                        <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                                    </button>
+                                ` : ''}
+                            </div>
+                            <p class="text-white text-xs font-medium truncate">${escapeHTML(item.caption || 'Memori Indah')}</p>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
             lucide.createIcons();
         }
 
-        function openMusicPopup(title, date, story, theme, musicUrl, imageUrl) {
+        async function deleteGalleryItem(id) {
+            if (!id) return;
+            if (isFirebaseReady && db && auth && auth.currentUser && !id.startsWith('local_') && !id.startsWith('default-')) {
+                try {
+                    const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'gallery', id);
+                    await deleteDoc(docRef);
+                } catch (err) {
+                    console.error("Gagal menghapus item galeri:", err);
+                }
+            } else {
+                fallbackGallery = fallbackGallery.filter(item => item.id !== id && item.url !== id);
+                localStorage.setItem('ayyaa_ikii_gallery_custom', JSON.stringify(fallbackGallery));
+                renderGalleryItems();
+            }
+        }
+
+        // ================= FITUR CHAT FILE ATTACHMENT =================
+        function triggerChatFileInput() {
+            const input = document.getElementById('chat-file-input');
+            if (input) input.click();
+        }
+
+        async function handleChatFileSelect(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            // Batas ukuran 15MB
+            if (file.size > 15 * 1024 * 1024) {
+                alert("Ukuran file terlalu besar! Maksimal 15MB yaa 😊");
+                event.target.value = '';
+                return;
+            }
+
+            try {
+                let fileDataUrl = '';
+                const isVideo = file.type.startsWith('video');
+
+                if (file.type.startsWith('image')) {
+                    fileDataUrl = await compressImage(file, 800, 800, 0.7);
+                } else {
+                    fileDataUrl = await readFileAsDataURL(file);
+                }
+
+                pendingFileAttachment = {
+                    url: fileDataUrl,
+                    type: isVideo ? 'video' : 'image',
+                    name: file.name,
+                    size: (file.size / 1024).toFixed(1) + ' KB'
+                };
+
+                // Tampilkan preview attachment di UI
+                const container = document.getElementById('chat-file-preview-container');
+                const mediaBox = document.getElementById('chat-file-preview-media');
+                const nameEl = document.getElementById('chat-file-preview-name');
+                const sizeEl = document.getElementById('chat-file-preview-size');
+
+                if (container && mediaBox && nameEl && sizeEl) {
+                    nameEl.innerText = file.name;
+                    sizeEl.innerText = pendingFileAttachment.size;
+
+                    if (isVideo) {
+                        mediaBox.innerHTML = `<i data-lucide="video" class="w-5 h-5 text-[#bd7a6b]"></i>`;
+                    } else {
+                        mediaBox.innerHTML = `<img src="${fileDataUrl}" class="w-full h-full object-cover">`;
+                    }
+                    container.classList.remove('hidden');
+                    lucide.createIcons();
+                }
+            } catch (err) {
+                console.error("Gagal membaca file chat:", err);
+                alert("Gagal memuat file dari perangkat.");
+            }
+        }
+
+        function clearChatFileAttachment() {
+            pendingFileAttachment = null;
+            const container = document.getElementById('chat-file-preview-container');
+            const input = document.getElementById('chat-file-input');
+            if (container) container.classList.add('hidden');
+            if (input) input.value = '';
+        }
+
+        async function sendChatMessage() {
+            const input = document.getElementById('chat-input');
+            const text = input ? input.value.trim() : '';
+
+            if (!text && !pendingFileAttachment) return;
+
+            const newMsg = {
+                text: text,
+                sender: currentUser || 'ikii',
+                timestamp: new Date().toISOString(),
+                mediaUrl: pendingFileAttachment ? pendingFileAttachment.url : null,
+                mediaType: pendingFileAttachment ? pendingFileAttachment.type : null
+            };
+
+            if (isFirebaseReady && db && auth && auth.currentUser) {
+                try {
+                    const chatsCol = collection(db, 'artifacts', appId, 'public', 'data', 'chats');
+                    await addDoc(chatsCol, newMsg);
+                } catch (err) {
+                    console.error("Gagal mengirim chat ke Firestore:", err);
+                }
+            } else {
+                newMsg.id = 'local_msg_' + Date.now();
+                fallbackChats.push(newMsg);
+                localStorage.setItem('ayyaa_ikii_chat', JSON.stringify(fallbackChats));
+                renderChatThread();
+            }
+
+            if (input) input.value = '';
+            clearChatFileAttachment();
+        }
+
+        function renderChatThread(cloudChats = []) {
+            const thread = document.getElementById('chat-thread');
+            if (!thread) return;
+
+            const combinedMap = new Map();
+            fallbackChats.forEach(c => combinedMap.set(c.id || c.timestamp, c));
+            cloudChats.forEach(c => combinedMap.set(c.id || c.timestamp, c));
+
+            const sortedChats = Array.from(combinedMap.values()).sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+
+            if (sortedChats.length === 0) {
+                thread.innerHTML = `
+                    <div class="h-full flex flex-col items-center justify-center text-center p-6 text-gray-400">
+                        <i data-lucide="message-circle-heart" class="w-12 h-12 text-[#e79e8c]/50 mb-2"></i>
+                        <p class="text-xs font-light">Belum ada pesan. Yuk tulis pesan pertamamu!</p>
+                    </div>
+                `;
+                lucide.createIcons();
+                return;
+            }
+
+            thread.innerHTML = sortedChats.map(msg => {
+                const isMe = msg.sender === currentUser;
+                const timeStr = msg.timestamp ? new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
+
+                return `
+                    <div class="flex flex-col ${isMe ? 'items-end' : 'items-start'} space-y-1">
+                        <div class="max-w-[78%] ${isMe ? 'chat-bubble-me' : 'chat-bubble-other'} px-4 py-2.5 shadow-xs text-xs sm:text-sm leading-relaxed font-light">
+                            ${msg.mediaUrl ? `
+                                <div class="mb-2 rounded-xl overflow-hidden max-w-xs">
+                                    ${msg.mediaType === 'video' ? `
+                                        <video src="${escapeHTML(msg.mediaUrl)}" controls class="w-full rounded-xl max-h-48 object-cover"></video>
+                                    ` : `
+                                        <img src="${escapeHTML(msg.mediaUrl)}" class="w-full rounded-xl max-h-48 object-cover" onerror="this.onerror=null; this.src='https://placehold.co/300x200/f5ebe0/bd7a6b?text=Gambar+Chat'">
+                                    `}
+                                </div>
+                            ` : ''}
+                            ${msg.text ? `<p class="break-words">${escapeHTML(msg.text)}</p>` : ''}
+                        </div>
+                        <span class="text-[9px] text-gray-400 px-1 font-mono">${timeStr}</span>
+                    </div>
+                `;
+            }).join('');
+
+            thread.scrollTop = thread.scrollHeight;
+            lucide.createIcons();
+        }
+
+        // Setup Firestore Realtime Listeners
+        function setupDataListeners() {
+            if (!isFirebaseReady || !db || !auth || !auth.currentUser) {
+                renderGalleryItems();
+                renderChatThread();
+                return;
+            }
+
+            try {
+                // Listener Chat
+                if (unsubscribeChats) unsubscribeChats();
+                const chatsCol = collection(db, 'artifacts', appId, 'public', 'data', 'chats');
+                unsubscribeChats = onSnapshot(chatsCol, (snapshot) => {
+                    const cloudChats = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                    renderChatThread(cloudChats);
+                }, (error) => {
+                    logDebug("Realtime Chat", "Error", error.message);
+                    renderChatThread();
+                });
+
+                // Listener Galeri
+                if (unsubscribeGallery) unsubscribeGallery();
+                const galleryCol = collection(db, 'artifacts', appId, 'public', 'data', 'gallery');
+                unsubscribeGallery = onSnapshot(galleryCol, (snapshot) => {
+                    const cloudItems = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                    renderGalleryItems(cloudItems);
+                }, (error) => {
+                    logDebug("Realtime Galeri", "Error", error.message);
+                    renderGalleryItems();
+                });
+
+            } catch (err) {
+                logDebug("Setup Listener", "Gagal", err.message);
+                renderGalleryItems();
+                renderChatThread();
+            }
+        }
+
+        // ================= PLAYLIST & AUDIO CONTROL =================
+        function openMusicPopup(title, date, desc, theme, audioUrl, imageUrl) {
             const modal = document.getElementById('music-modal');
             const modalTitle = document.getElementById('modal-title');
             const modalDate = document.getElementById('modal-date');
             const modalDesc = document.getElementById('modal-desc');
-            const nowPlayingTitle = document.getElementById('now-playing-title');
-            const iconContainer = document.getElementById('modal-icon-container');
-            const vinyl = document.getElementById('vinyl-record');
-            const playBtn = document.getElementById('global-play-btn');
             const popupImage = document.getElementById('popup-image');
+            const iconBox = document.getElementById('modal-icon-container');
 
-            if (imageUrl && !imageUrl.includes("ID_FOTO_LAGU")) {
-                popupImage.src = imageUrl;
-                popupImage.style.display = 'block';
-                iconContainer.style.display = 'none';
+            if (modalTitle) modalTitle.innerText = title;
+            if (modalDate) modalDate.innerText = date;
+            if (modalDesc) modalDesc.innerText = desc;
+
+            if (imageUrl) {
+                popupImage.src = parseDriveUrl(imageUrl);
+                popupImage.classList.remove('hidden');
+                if (iconBox) iconBox.style.display = 'none';
             } else {
-                popupImage.style.display = 'none';
-                iconContainer.style.display = 'flex';
+                popupImage.classList.add('hidden');
+                if (iconBox) iconBox.style.display = 'flex';
             }
 
-            modalTitle.innerText = title;
-            modalDate.innerText = date.toUpperCase();
-            modalDesc.innerText = story;
-            nowPlayingTitle.innerText = title;
+            if (modal) modal.classList.remove('hidden');
 
-            if (theme === 'romantic_sunset') {
-                iconContainer.innerHTML = '<i data-lucide="sun" class="w-8 h-8 text-amber-500"></i>';
-            } else if (theme === 'cozy_night') {
-                iconContainer.innerHTML = '<i data-lucide="moon" class="w-8 h-8 text-indigo-500"></i>';
-            } else if (theme === 'rainy_day') {
-                iconContainer.innerHTML = '<i data-lucide="cloud-rain" class="w-8 h-8 text-blue-400"></i>';
-            } else {
-                iconContainer.innerHTML = '<i data-lucide="sparkles" class="w-8 h-8 text-yellow-500"></i>';
+            // Play Audio
+            if (audioUrl) {
+                const audio = document.getElementById('global-audio');
+                const titleEl = document.getElementById('now-playing-title');
+                const playBtn = document.getElementById('global-play-btn');
+                const vinyl = document.getElementById('vinyl-record');
+
+                if (audio) {
+                    audio.src = audioUrl;
+                    audio.play().then(() => {
+                        if (titleEl) titleEl.innerText = title;
+                        if (playBtn) playBtn.innerHTML = `<i data-lucide="pause" class="w-4 h-4 fill-current"></i>`;
+                        if (vinyl) vinyl.classList.add('spin-slow');
+                        lucide.createIcons();
+                    }).catch(e => console.log("Auto-play blocked:", e));
+                }
             }
-
-            if (musicUrl && !musicUrl.includes("raw.githubusercontent.com/username/")) {
-                audioEl.src = musicUrl;
-                audioEl.load();
-                audioEl.play().then(() => {
-                    isAudioPlaying = true;
-                    playBtn.innerHTML = '<i data-lucide="pause" class="w-4 h-4 fill-current"></i>';
-                    nowPlayingTitle.classList.remove('opacity-60');
-                    vinyl.classList.add('animate-spin');
-                    vinyl.style.animationDuration = '8s';
-                }).catch(e => console.log("Gagal memutar audio otomatis:", e));
-            } else {
-                isAudioPlaying = true;
-                playBtn.innerHTML = '<i data-lucide="pause" class="w-4 h-4 fill-current"></i>';
-                nowPlayingTitle.classList.remove('opacity-60');
-                vinyl.classList.add('animate-spin');
-                vinyl.style.animationDuration = '8s';
-            }
-
-            modal.classList.remove('hidden');
-            const scrollContainer = modal.querySelector('.smooth-scroll-container');
-            if (scrollContainer) scrollContainer.scrollTop = 0;
-            lucide.createIcons();
         }
 
         function closeMusicPopup() {
@@ -1508,188 +1774,100 @@
             if (modal) modal.classList.add('hidden');
         }
 
-        // Kirim Chat DM
-        async function sendChatMessage() {
-            const chatInput = document.getElementById('chat-input');
-            if (!chatInput) return;
-            const messageText = chatInput.value.trim();
+        function toggleGlobalAudio() {
+            const audio = document.getElementById('global-audio');
+            const playBtn = document.getElementById('global-play-btn');
+            const vinyl = document.getElementById('vinyl-record');
 
-            if (messageText === '') return;
+            if (!audio || !audio.src) return;
 
-            const now = new Date();
-            const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-            const safeText = escapeHTML(messageText);
-
-            const messageObj = {
-                sender: currentUser || 'ikii',
-                text: safeText,
-                time: timeString,
-                timestamp: Date.now()
-            };
-
-            if (isFirebaseReady && currentAuthUser) {
-                try {
-                    await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'chats'), messageObj);
-                } catch (e) {
-                    console.error("Gagal mengirim pesan: ", e);
-                    logDebug("Kirim Chat", "Gagal!", e.message);
-                }
+            if (audio.paused) {
+                audio.play();
+                if (playBtn) playBtn.innerHTML = `<i data-lucide="pause" class="w-4 h-4 fill-current"></i>`;
+                if (vinyl) vinyl.classList.add('spin-slow');
             } else {
-                fallbackChats.push(messageObj);
-                localStorage.setItem('ayyaa_ikii_chat', JSON.stringify(fallbackChats));
-                renderMessages(fallbackChats);
+                audio.pause();
+                if (playBtn) playBtn.innerHTML = `<i data-lucide="play" class="w-4 h-4 fill-current"></i>`;
+                if (vinyl) vinyl.classList.remove('spin-slow');
             }
-
-            chatInput.value = '';
+            lucide.createIcons();
         }
 
-        // Render Thread DM dalam gaya Instagram
-        function renderMessages(messagesList = []) {
-            const thread = document.getElementById('chat-thread');
-            if (!thread) return;
-            thread.innerHTML = '';
-
-            messagesList.forEach(msg => {
-                const isMyMessage = (msg.sender === currentUser);
-                const senderAvatarLetter = msg.sender === 'ikii' ? '🧸' : '🎀';
-
-                let itemHTML = '';
-
-                if (isMyMessage) {
-                    itemHTML = `
-                        <div class="flex items-end justify-end space-x-2 my-1">
-                            <div class="max-w-[75%] px-4 py-2.5 chat-bubble-me text-sm shadow-xs break-words">
-                                <p class="leading-relaxed">${msg.text}</p>
-                                <span class="block text-[9px] text-white/70 text-right mt-1 font-light">${msg.time}</span>
-                            </div>
-                        </div>
-                    `;
-                } else {
-                    itemHTML = `
-                        <div class="flex items-end space-x-2 my-1">
-                            <div class="w-7 h-7 rounded-full bg-[#bd7a6b] text-white flex items-center justify-center text-xs font-bold flex-shrink-0 shadow-xs mb-1">
-                                ${senderAvatarLetter}
-                            </div>
-                            <div class="max-w-[75%] px-4 py-2.5 chat-bubble-other text-sm shadow-xs break-words">
-                                <p class="leading-relaxed">${msg.text}</p>
-                                <span class="block text-[9px] text-gray-400 mt-1 font-light">${msg.time}</span>
-                            </div>
-                        </div>
-                    `;
-                }
-                thread.insertAdjacentHTML('beforeend', itemHTML);
-            });
-
-            thread.scrollTo({
-                top: thread.scrollHeight,
-                behavior: 'smooth'
-            });
+        // ================= MODAL & CONFIG HELPERS =================
+        function openDebugModal() {
+            document.getElementById('debug-modal').classList.remove('hidden');
+        }
+        function closeDebugModal() {
+            document.getElementById('debug-modal').classList.add('hidden');
         }
 
-        const chatInputEl = document.getElementById('chat-input');
-        if (chatInputEl) {
-            chatInputEl.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    sendChatMessage();
-                }
-            });
-        }
-
-        // Cloud Config Handlers
         function openCloudConfigModal() {
-            const modal = document.getElementById('cloud-config-modal');
-            if (!modal) return;
-            modal.classList.remove('hidden');
-
-            const savedConfigRaw = localStorage.getItem('custom_firebase_config');
-            let savedConfig = null;
-            if (savedConfigRaw) {
-                try { savedConfig = JSON.parse(savedConfigRaw); } catch(e) {}
-            } else {
-                savedConfig = MANUAL_FIREBASE_CONFIG;
+            const saved = localStorage.getItem('custom_firebase_config');
+            if (saved) {
+                try {
+                    const cfg = JSON.parse(saved);
+                    document.getElementById('cfg-apiKey').value = cfg.apiKey || '';
+                    document.getElementById('cfg-authDomain').value = cfg.authDomain || '';
+                    document.getElementById('cfg-projectId').value = cfg.projectId || '';
+                    document.getElementById('cfg-storageBucket').value = cfg.storageBucket || '';
+                    document.getElementById('cfg-messagingSenderId').value = cfg.messagingSenderId || '';
+                    document.getElementById('cfg-appId').value = cfg.appId || '';
+                } catch(e){}
             }
-
-            if (savedConfig) {
-                document.getElementById('cfg-apiKey').value = savedConfig.apiKey || '';
-                document.getElementById('cfg-authDomain').value = savedConfig.authDomain || '';
-                document.getElementById('cfg-projectId').value = savedConfig.projectId || '';
-                document.getElementById('cfg-storageBucket').value = savedConfig.storageBucket || '';
-                document.getElementById('cfg-messagingSenderId').value = savedConfig.messagingSenderId || '';
-                document.getElementById('cfg-appId').value = savedConfig.appId || '';
-            }
+            document.getElementById('cloud-config-modal').classList.remove('hidden');
         }
 
         function closeCloudConfigModal() {
-            const modal = document.getElementById('cloud-config-modal');
-            if (modal) modal.classList.add('hidden');
-        }
-
-        function showCloudStatus(text, isError = false) {
-            const statusEl = document.getElementById('cloud-status-msg');
-            if (!statusEl) return;
-            statusEl.innerText = text;
-            statusEl.className = `text-xs text-center font-medium ${isError ? 'text-red-500' : 'text-green-600'}`;
-            statusEl.classList.remove('hidden');
+            document.getElementById('cloud-config-modal').classList.add('hidden');
         }
 
         function saveCloudConfig() {
-            const config = {
+            const cfg = {
                 apiKey: document.getElementById('cfg-apiKey').value.trim(),
                 authDomain: document.getElementById('cfg-authDomain').value.trim(),
                 projectId: document.getElementById('cfg-projectId').value.trim(),
                 storageBucket: document.getElementById('cfg-storageBucket').value.trim(),
                 messagingSenderId: document.getElementById('cfg-messagingSenderId').value.trim(),
-                appId: document.getElementById('cfg-appId').value.trim()
+                appId: document.getElementById('cfg-appId').value.trim(),
             };
 
-            if (!config.apiKey || !config.projectId) {
-                showCloudStatus("Harap masukkan setidaknya API Key dan Project ID!", true);
+            if (!cfg.apiKey || !cfg.projectId) {
+                alert("API Key dan Project ID wajib diisi!");
                 return;
             }
 
-            localStorage.setItem('custom_firebase_config', JSON.stringify(config));
-            showCloudStatus("Konfigurasi disimpan! Memuat ulang halaman...");
-            setTimeout(() => {
-                window.location.reload();
-            }, 1500);
+            localStorage.setItem('custom_firebase_config', JSON.stringify(cfg));
+            alert("Konfigurasi tersimpan! Halaman akan dimuat ulang...");
+            window.location.reload();
         }
 
         function resetCloudConfig() {
             localStorage.removeItem('custom_firebase_config');
-            showCloudStatus("Konfigurasi dihapus! Memuat ulang halaman...");
-            setTimeout(() => {
-                window.location.reload();
-            }, 1500);
+            alert("Konfigurasi di-reset ke default! Halaman akan dimuat ulang...");
+            window.location.reload();
         }
 
-        function openDebugModal() {
-            const modal = document.getElementById('debug-modal');
-            if (modal) modal.classList.remove('hidden');
-        }
-
-        function closeDebugModal() {
-            const modal = document.getElementById('debug-modal');
-            if (modal) modal.classList.add('hidden');
-        }
-
-        // Attach to global window
+        // Expose functions to global window scope
         window.checkPassword = checkPassword;
         window.logout = logout;
         window.switchTab = switchTab;
         window.scrollToSection = scrollToSection;
-        window.addDriveItem = addDriveItem;
-        window.deleteDriveItem = deleteDriveItem;
-        window.toggleGlobalAudio = toggleGlobalAudio;
         window.openMusicPopup = openMusicPopup;
         window.closeMusicPopup = closeMusicPopup;
-        window.sendChatMessage = sendChatMessage;
+        window.toggleGlobalAudio = toggleGlobalAudio;
+        window.openDebugModal = openDebugModal;
+        window.closeDebugModal = closeDebugModal;
         window.openCloudConfigModal = openCloudConfigModal;
         window.closeCloudConfigModal = closeCloudConfigModal;
         window.saveCloudConfig = saveCloudConfig;
         window.resetCloudConfig = resetCloudConfig;
-        window.openDebugModal = openDebugModal;
-        window.closeDebugModal = closeDebugModal;
-
+        window.handleGalleryFileSelect = handleGalleryFileSelect;
+        window.addDriveItem = addDriveItem;
+        window.triggerChatFileInput = triggerChatFileInput;
+        window.handleChatFileSelect = handleChatFileSelect;
+        window.clearChatFileAttachment = clearChatFileAttachment;
+        window.sendChatMessage = sendChatMessage;
+        window.deleteGalleryItem = deleteGalleryItem;
     </script>
 </body>
 </html>
